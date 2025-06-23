@@ -10,10 +10,11 @@ use App\Models\Club;
 
 class ProfileController extends Controller
 {
-    public function update(Request $request) {
+    public function update(Request $request)
+    {
         $user = Auth::user();
 
-        $request ->validate([
+        $request->validate([
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -36,14 +37,26 @@ class ProfileController extends Controller
             if ($club) {
                 $club->name = $request->name;
                 $club->description = $request->description ?? $club->description;
-                
+
                 if ($request->hasFile('logo')) {
                     if ($club->logo_path && Storage::disk('public')->exists($club->logo_path)) {
                         Storage::disk('public')->delete($club->logo_path);
                     }
 
-                    $path = $request->file('logo')->store('logos', 'public');
-                    $club->logo_path = $path;
+                    $file = $request->file('logo');
+                    $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+
+                    // Pastikan folder tujuan ada
+                    $destinationPath = public_path('storage/logos');
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0775, true);
+                    }
+
+                    // Pindahkan file ke public/storage/logos
+                    $file->move($destinationPath, $filename);
+
+                    // Simpan path untuk diakses publik
+                    $club->logo_path = 'logos/' . $filename;
                 }
                 $club->save();
             }

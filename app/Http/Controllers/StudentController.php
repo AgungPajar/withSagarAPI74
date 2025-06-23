@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\student;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Vinkla\Hashids\Facades\Hashids;
 
@@ -119,6 +119,7 @@ class StudentController extends Controller
             'name' => 'required|string|max:255',
             'nisn' => 'required|string|max:20',
             'class' => 'required|string|max:50',
+            'phone' => 'required|string|max:50',
         ]);
 
         $student = Student::where('nisn', $request->nisn)->first();
@@ -128,12 +129,14 @@ class StudentController extends Controller
                 'name' => $request->name,
                 'nisn' => $request->nisn,
                 'class' => $request->class ?? '',
+                'phone' => $request->phone,
             ]);
         } else {
             // Update nama dan kelas jika kosong atau berubah
             $student->update([
                 'name' => $request->name,
                 'class' => $request->class ?? $student->class,
+                'phone' => $request->phone,
             ]);
         }
 
