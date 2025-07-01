@@ -16,9 +16,19 @@ class CreateStudentsTable extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('nisn')->unique();// Default role for students
+            $table->string('nisn')->unique();
             $table->string('class');
-            $table->string('phone');
+            $table->string('phone')->nullable();
+            $table->date('tanggal_lahir')->nullable();
+
+            // Fix ini penting:
+            $table->unsignedBigInteger('id_jurusan')->nullable();
+            $table->foreign('id_jurusan')->references('id')->on('jurusans')->onDelete('set null');
+
+            $table->unsignedBigInteger('user_id')->nullable()->unique();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+
+
             $table->timestamps();
         });
     }

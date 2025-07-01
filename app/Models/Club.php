@@ -9,7 +9,7 @@ class Club extends Model
 {
     use HasFactory;
     protected $table = 'clubs';
-    protected $fillable = ['name', 'description', 'logo_path'];
+    protected $fillable = ['name', 'description', 'logo_path', 'group_link'];
 
     public function students(){
         return $this->belongsToMany(Student::class, 'club_student', 'club_id', 'student_id' );

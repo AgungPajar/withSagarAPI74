@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Student;
 use Illuminate\Http\Request;
-use Vinkla\Hashids\Facades\Hashids;
 use Illuminate\Support\Facades\Hash;
+use Vinkla\Hashids\Facades\Hashids;
 
 class AuthController extends Controller
 {
-
     public function login(Request $request)
     {
         $request->validate([
@@ -27,6 +27,30 @@ class AuthController extends Controller
 
         $token = $user->createToken('my-app-token')->plainTextToken;
 
+        // Default nulls
+        $clubId = null;
+        $clubHashId = null;
+        $studentId = null;
+        $studentHashId = null;
+
+        if ($user->role === 'student') {
+            $student = \App\Models\Student::where('user_id', $user->id)->first();
+
+            if ($student) {
+                $studentId = $student->id;
+                $studentHashId = Hashids::encode($studentId);
+
+                $firstClub = $student->clubs()->first();
+                if ($firstClub) {
+                    $clubId = $firstClub->id;
+                    $clubHashId = Hashids::encode($clubId);
+                }
+            }
+        } elseif ($user->role === 'club_pengurus' && $user->club_id) {
+            $clubId = $user->club_id;
+            $clubHashId = Hashids::encode($clubId);
+        }
+
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
@@ -35,8 +59,10 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'username' => $user->username,
                 'role' => $user->role,
-                'club_id' => $user->club_id,
-                'club_hash_id' => $user->club_id ? Hashids::encode($user->club_id) : null,
+                'club_id' => $clubId,
+                'club_hash_id' => $clubHashId,
+                'student_id' => $studentId,
+                'student_hash_id' => $studentHashId,
             ]
         ]);
     }
