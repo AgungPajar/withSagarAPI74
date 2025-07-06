@@ -28,11 +28,6 @@ class ClubController extends Controller
         return response()->json($clubs);
     }
 
-    public function create()
-    {
-        //
-    }
-
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -41,16 +36,15 @@ class ClubController extends Controller
             'password' => 'required|string|min:6',
             'status'   => 'nullable|string',
         ]);
-
-        $club = Club::create([
-            'name' => $validated['name'],
-            'status' => $validated['status'] ?? null,
-        ]);
         $user = User::create([
             'name' => $validated['name'],
             'username' => $validated['username'],
             'password' => bcrypt($validated['password']),
-            'club_id' => $club->id,
+        ]);
+        $club = Club::create([
+            'name' => $validated['name'],
+            'status' => $validated['status'] ?? null,
+            'user_id' => $user->id,
         ]);
         return response()->json([
             $club->load('user'),
@@ -68,10 +62,11 @@ class ClubController extends Controller
         };
         $id = $decoded[0];
         $user = $request->user();
-        if ($user && $user->role === 'club_pengurus' && $user->club_id !=  $id) {
-            return response()->json([
-                'message' => 'Akses Ditolak'
-            ], 403);
+        if ($user && $user->role === 'club_pengurus') {
+            $clubCheck = Club::where('user_id', $user->id)->first();
+            if (!$clubCheck || $clubCheck->id != $id) {
+                return response()->json(['message' => 'Akses Ditolak'], 403);
+            }
         }
         $club = Club::with('user')->find($id);
         if (!$club) {
@@ -89,12 +84,7 @@ class ClubController extends Controller
         ]);
     }
 
-    public function edit(Club $club)
-    {
-        //   
-    }
-
-     public function update(Request $request)
+    public function update(Request $request)
     {
         $user = Auth::user();
 
@@ -102,50 +92,46 @@ class ClubController extends Controller
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'group_link' => 'nullable|string',
+            'group_link' => 'nullable|url',
             'password' => 'nullable|string|min:6',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
+        // ✅ Jangan set name lagi karena kolom name udah ga ada di tabel users
         $user->username = $request->username;
-        $user->name = $request->name;
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
+
         $user->save();
 
-        $club = null;
-        if ($user->club_id) {
-            $club = Club::find($user->club_id);
+        // ✅ Update club berdasarkan user_id
+        $club = Club::where('user_id', $user->id)->first();
 
-            if ($club) {
-                $club->name = $request->name;
-                $club->description = $request->description ?? $club->description;
-                $club->group_link = $request->group_link ?? $club->group_link;
+        if ($club) {
+            $club->name = $request->name;
+            $club->description = $request->description ?? $club->description;
+            $club->group_link = $request->group_link ?? $club->group_link;
 
-                if ($request->hasFile('logo')) {
-                    if ($club->logo_path && Storage::disk('public')->exists($club->logo_path)) {
-                        Storage::disk('public')->delete($club->logo_path);
-                    }
-
-                    $file = $request->file('logo');
-                    $filename = uniqid() . '.' . $file->getClientOriginalExtension();
-
-                    // Pastikan folder tujuan ada
-                    $destinationPath = public_path('storage/logos');
-                    if (!file_exists($destinationPath)) {
-                        mkdir($destinationPath, 0775, true);
-                    }
-
-                    // Pindahkan file ke public/storage/logos
-                    $file->move($destinationPath, $filename);
-
-                    // Simpan path untuk diakses publik
-                    $club->logo_path = 'logos/' . $filename;
+            if ($request->hasFile('logo')) {
+                if ($club->logo_path && Storage::disk('public')->exists($club->logo_path)) {
+                    Storage::disk('public')->delete($club->logo_path);
                 }
-                $club->save();
+
+                $file = $request->file('logo');
+                $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+
+                $destinationPath = public_path('storage/logos');
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0775, true);
+                }
+
+                $file->move($destinationPath, $filename);
+                $club->logo_path = 'logos/' . $filename;
             }
+
+            $club->save();
         }
 
         return response()->json([

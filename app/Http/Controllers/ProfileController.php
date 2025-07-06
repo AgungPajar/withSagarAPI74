@@ -23,44 +23,41 @@ class ProfileController extends Controller
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
+        // ✅ Jangan set name lagi karena kolom name udah ga ada di tabel users
         $user->username = $request->username;
-        $user->name = $request->name;
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
+
         $user->save();
 
-        $club = null;
-        if ($user->club_id) {
-            $club = Club::find($user->club_id);
+        // ✅ Update club berdasarkan user_id
+        $club = Club::where('user_id', $user->id)->first();
 
-            if ($club) {
-                $club->name = $request->name;
-                $club->description = $request->description ?? $club->description;
+        if ($club) {
+            $club->name = $request->name;
+            $club->description = $request->description ?? $club->description;
+            $club->group_link = $request->group_link ?? $club->group_link;
 
-                if ($request->hasFile('logo')) {
-                    if ($club->logo_path && Storage::disk('public')->exists($club->logo_path)) {
-                        Storage::disk('public')->delete($club->logo_path);
-                    }
-
-                    $file = $request->file('logo');
-                    $filename = uniqid() . '.' . $file->getClientOriginalExtension();
-
-                    // Pastikan folder tujuan ada
-                    $destinationPath = public_path('storage/logos');
-                    if (!file_exists($destinationPath)) {
-                        mkdir($destinationPath, 0775, true);
-                    }
-
-                    // Pindahkan file ke public/storage/logos
-                    $file->move($destinationPath, $filename);
-
-                    // Simpan path untuk diakses publik
-                    $club->logo_path = 'logos/' . $filename;
+            if ($request->hasFile('logo')) {
+                if ($club->logo_path && Storage::disk('public')->exists($club->logo_path)) {
+                    Storage::disk('public')->delete($club->logo_path);
                 }
-                $club->save();
+
+                $file = $request->file('logo');
+                $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+
+                $destinationPath = public_path('storage/logos');
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0775, true);
+                }
+
+                $file->move($destinationPath, $filename);
+                $club->logo_path = 'logos/' . $filename;
             }
+
+            $club->save();
         }
 
         return response()->json([

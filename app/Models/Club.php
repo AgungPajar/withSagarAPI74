@@ -11,14 +11,16 @@ class Club extends Model
     protected $table = 'clubs';
     protected $fillable = ['name', 'description', 'logo_path', 'group_link'];
 
-    public function students(){
-        return $this->belongsToMany(Student::class, 'club_student', 'club_id', 'student_id' );
+    public function students()
+    {
+        return $this->belongsToMany(Student::class, 'club_student', 'club_id', 'student_id');
     }
     public function getLogoUrlAttribute()
     {
         return $this->logo_path ? asset('storage/' . $this->logo_path) : null;
     }
-    public function user() {
-        return $this->belongsTo(User::class, 'id', 'club_id');
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

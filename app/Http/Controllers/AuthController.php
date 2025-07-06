@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Club;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Vinkla\Hashids\Facades\Hashids;
@@ -32,7 +34,7 @@ class AuthController extends Controller
         $studentHashId = null;
 
         if ($user->role === 'student') {
-            $student = \App\Models\Student::where('user_id', $user->id)->first();
+            $student = Student::where('user_id', $user->id)->first();
 
             if ($student) {
                 $studentId = $student->id;
@@ -44,9 +46,13 @@ class AuthController extends Controller
                     $clubHashId = Hashids::encode($clubId);
                 }
             }
-        } else if ($user->role === 'club_pengurus' && $user->club_id) {
-            $clubId = $user->club_id;
-            $clubHashId = Hashids::encode($clubId);
+        } else if ($user->role === 'club_pengurus') {
+            $club = Club::where('user_id', $user->id)->first();
+
+            if ($club) {
+                $clubId = $club->id;
+                $clubHashId = Hashids::encode($clubId);
+            }
         }
 
         return response()->json([

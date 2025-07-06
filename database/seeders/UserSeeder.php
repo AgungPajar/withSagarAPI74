@@ -3,37 +3,33 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Club;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        User::create([
+        $mpk = User::create([
             'name' => 'MPK',
             'username' => 'mpk',
             'email' => 'mpk@example.com',
             'password' => Hash::make('admin1234'),
             'role' => 'mpk',
-            'club_id' => 1
         ]);
 
-        User::create([
+        $osis = User::create([
             'name' => 'OSIS',
             'username' => 'osis',
             'email' => 'osis@example.com',
             'password' => Hash::make('admin1234'),
             'role' => 'osis',
-            'club_id' => 2
         ]);
-        
-        // Daftar Ekskul
+
+        Club::where('id', 1)->update(['user_id' => $mpk->id]);
+        Club::where('id', 2)->update(['user_id' => $osis->id]);
+
         $clubs = [
             ['name' => 'IRMA', 'id' => 3],
             ['name' => 'PKS', 'id' => 4],
@@ -76,13 +72,18 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($clubs as $club) {
-            User::create([
+            // Buat user
+            $user = User::create([
                 'name'=> $club['name'],
                 'username' => strtolower(str_replace(' ', '_', $club['name'])),
                 'email' => strtolower(str_replace(' ', '_', $club['name']) . '@example.com'),
                 'password' => Hash::make('admin123'),
                 'role' => 'club_pengurus',
-                'club_id' => $club['id']
+            ]);
+
+            // Update ke tabel club
+            Club::where('id', $club['id'])->update([
+                'user_id' => $user->id,
             ]);
         }
     }

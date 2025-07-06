@@ -19,6 +19,8 @@ class CreateClubsTable extends Migration
             $table->text('description')->nullable();
             $table->string('logo_path')->nullable();
             $table->string('group_link')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

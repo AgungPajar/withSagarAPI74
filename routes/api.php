@@ -1,12 +1,12 @@
 <?php
 
-use App\Http\Controllers\TTSFeedbackController;
 use Illuminate\Http\Request;
 use App\Models\ActivityReport;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClubController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\RekapController;
 use App\Http\Controllers\JurusanController;
 use App\Http\Controllers\ProfileController;
@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ClubRequestController;
 use App\Http\Controllers\ExportExcelController;
+use App\Http\Controllers\TTSFeedbackController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\AktivityReportController;
 use App\Http\Controllers\LombaRegistrationController;
@@ -48,7 +49,8 @@ Route::prefix('admin')->middleware('auth:sanctum',)->group(function () {
   Route::delete('/clubs/{club}', [ClubController::class, 'destroy']);
   Route::post('/clubs/update', [ClubController::class, 'update']);
 
-  Route::post('/users', [UserController::class, 'store']);
+  Route::get('/profile', [AdminController::class, 'show']);
+  Route::post('/profile', [AdminController::class, 'update']);
 
   Route::post('/students/import', [StudentController::class, 'importExcel']);
 
@@ -62,8 +64,6 @@ Route::prefix('admin')->middleware('auth:sanctum',)->group(function () {
   Route::get('/students', [StudentController::class, 'indexStudents']);
 
   Route::delete('/students/delete-multiple', [StudentController::class, 'deleteMultiple']);
-
-  
 });
 Route::get('/students/download-template', [StudentController::class, 'downloadTemplate']);
 
