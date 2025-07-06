@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Jurusan;
+use App\Models\Student;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Attendance extends Model
 {
@@ -17,4 +19,10 @@ class Attendance extends Model
     public function student(){
         return $this->belongsTo(Student::class);
     }
+
+    public function jurusan()
+{
+    return $this->belongsTo(Jurusan::class, 'id_jurusan');
+}
+
 }

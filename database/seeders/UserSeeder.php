@@ -20,7 +20,8 @@ class UserSeeder extends Seeder
             'username' => 'mpk',
             'email' => 'mpk@example.com',
             'password' => Hash::make('admin1234'),
-            'role' => 'osis'
+            'role' => 'mpk',
+            'club_id' => 1
         ]);
 
         User::create([
@@ -28,7 +29,8 @@ class UserSeeder extends Seeder
             'username' => 'osis',
             'email' => 'osis@example.com',
             'password' => Hash::make('admin1234'),
-            'role' => 'osis'
+            'role' => 'osis',
+            'club_id' => 2
         ]);
         
         // Daftar Ekskul

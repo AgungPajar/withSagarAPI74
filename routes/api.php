@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TTSFeedbackController;
 use Illuminate\Http\Request;
 use App\Models\ActivityReport;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +37,8 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/clubs', [ClubController::class, 'index']);
 
+Route::post('/ttsform', [TTSFeedbackController::class, 'store']);
+
 Route::get('/export/harian', [ExportExcelController::class, 'exportHarian']);
 Route::get('/rekap/export/monthly', [ExportExcelController::class, 'exportBulanan']);
 
@@ -54,7 +57,11 @@ Route::prefix('admin')->middleware('auth:sanctum',)->group(function () {
   Route::get('/jurusans', [JurusanController::class, 'index']);
   // Route::get('/majors', [MajorController::class, 'index']);
 
+  Route::get('/ttsform', [TTSFeedbackController::class, 'index']);
+
   Route::get('/students', [StudentController::class, 'indexStudents']);
+
+  Route::delete('/students/delete-multiple', [StudentController::class, 'deleteMultiple']);
 
   
 });
@@ -82,6 +89,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
   Route::get('/student/{studentHashId}/dashboard', [StudentController::class, 'dashboard']);
   Route::get('/student/{hashedId}', [StudentController::class, 'show']);
+  Route::post('/update-profile-student', [StudentController::class, 'updateProfile']);
   route::apiResource('students', StudentController::class)->only(['destroy']);
 
   Route::get('/rekapitulasi', [RekapController::class, 'index']);

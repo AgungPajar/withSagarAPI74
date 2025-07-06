@@ -9,12 +9,12 @@ class Student extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'nisn', 'class', 'phone', 'user_id', 'id_jurusan','rombel', 'tanggal_lahir'];
+    protected $fillable = ['name', 'nisn', 'class', 'phone', 'user_id', 'id_jurusan', 'rombel', 'tanggal_lahir'];
 
     public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+{
+    return $this->belongsTo(User::class);
+}
 
     public function clubs()
     {
@@ -22,14 +22,14 @@ class Student extends Model
     }
 
     public function jurusan()
-{
-    return $this->belongsTo(Jurusan::class, 'id_jurusan');
-}
+    {
+        return $this->belongsTo(Jurusan::class, 'id_jurusan');
+    }
 
-protected $appends = ['kelas_lengkap'];
+    protected $appends = ['kelas_lengkap'];
 
-public function getKelasLengkapAttribute()
-{
-    return "{$this->class} {$this->jurusan->singkatan} {$this->romblel}";
-}
+    public function getKelasLengkapAttribute()
+    {
+        return "{$this->class} {$this->jurusan->singkatan} {$this->romblel}";
+    }
 }

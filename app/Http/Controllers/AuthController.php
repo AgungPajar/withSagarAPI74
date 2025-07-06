@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Vinkla\Hashids\Facades\Hashids;
@@ -27,7 +26,6 @@ class AuthController extends Controller
 
         $token = $user->createToken('my-app-token')->plainTextToken;
 
-        // Default nulls
         $clubId = null;
         $clubHashId = null;
         $studentId = null;
@@ -46,7 +44,7 @@ class AuthController extends Controller
                     $clubHashId = Hashids::encode($clubId);
                 }
             }
-        } elseif ($user->role === 'club_pengurus' && $user->club_id) {
+        } else if ($user->role === 'club_pengurus' && $user->club_id) {
             $clubId = $user->club_id;
             $clubHashId = Hashids::encode($clubId);
         }

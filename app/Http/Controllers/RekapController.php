@@ -21,7 +21,7 @@ class RekapController extends Controller
         $clubId = $decoded[0];
         $date = $request->query('date');
 
-        $rekap = Attendance::with('student')
+        $rekap = Attendance::with(['student.jurusan'])
             ->where('club_id', $clubId)
             ->when($date, function ($query) use ($date) {
                 $query->whereDate('date', $date);

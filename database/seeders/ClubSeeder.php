@@ -15,7 +15,7 @@ class ClubSeeder extends Seeder
     public function run()
     {
         $clubs = [
-            ['name' => 'MPK', 'description' => 'Ekstrakurikuler MPK', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'MPK', 'description' => 'Ekstrakurikuler MPK'],
             ['name' => 'OSIS', 'description' => 'Organisasi Siswa Intra Sekolah'],
             ['name' => 'IRMA', 'description' => 'Ekstrakurikuler IRMA'],
             ['name' => 'PKS', 'description' => 'Ekstrakurikuler PKS'],

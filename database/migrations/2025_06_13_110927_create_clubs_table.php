@@ -18,6 +18,7 @@ class CreateClubsTable extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('logo_path')->nullable();
+            $table->string('group_link')->nullable();
             $table->timestamps();
         });
     }

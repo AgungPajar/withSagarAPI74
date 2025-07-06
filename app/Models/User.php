@@ -24,7 +24,8 @@ class User extends Authenticatable
         'username',
         'password',
         'role',
-        'club_id'
+        'club_id',
+        'student_id',
     ];
 
     /**
@@ -47,7 +48,7 @@ class User extends Authenticatable
     ];
 
     public function student()
-    {
-        return $this->hasOne(Student::class);
-    }
+{
+    return $this->hasOne(Student::class, 'user_id');
+}
 }

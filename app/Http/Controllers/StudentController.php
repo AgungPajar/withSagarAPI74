@@ -18,32 +18,11 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StudentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        return response()->json(Student::with('club')->get());
+        return response()->json(Student::with('clubs')->get());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $validated  = $request->validate([
@@ -56,12 +35,6 @@ class StudentController extends Controller
         return response()->json($student, 201);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\student  $student
-     * @return \Illuminate\Http\Response
-     */
     public function show(Request $request, $hashedId)
     {
         $decoded = Hashids::decode($hashedId);
@@ -87,29 +60,41 @@ class StudentController extends Controller
             'class' => $student->class,
             'jurusan' => $student->jurusan->nama ?? null,
             'phone' => $student->phone,
-            'birthdate' => $student->birthdate,
+            'tanggal_lahir' => $student->tanggal_lahir,
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\student  $student
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(student $student)
+    public function updateProfile(Request $request)
     {
-        //
+        $user = $request->user();
+
+        if (!$user || $user->role !== 'student' || !$user->student) {
+            return response()->json(['message' => 'Akses ditolak'], 403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'tanggal_lahir' => 'nullable|date',
+            'password' => 'nullable|string|min:8',
+        ]);
+
+        $user->name = $validated['name'];
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+        $user->save();
+
+        $student = $user->student;
+        $student->name = $validated['name'];
+        $student->phone = $validated['phone'];
+        $student->tanggal_lahir = $validated['tanggal_lahir'];
+        $student->save();
+
+        return response()->json(['message' => 'Profil berhasil diupdate.']);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\student  $student
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, student $student)
+    public function update(Request $request, Student $student)
     {
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
@@ -118,15 +103,14 @@ class StudentController extends Controller
         ]);
 
         $student->update($validated);
+
+        if ($request->has('club_id')) {
+            $student->clubs()->syncWithoutDetaching([$request->club_id]);
+        }
+
         return response()->json($student);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\student  $student
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         $student = Student::find($id);
@@ -159,14 +143,15 @@ class StudentController extends Controller
         $student = Student::where('nisn', $request->nisn)->first();
 
         if (!$student) {
+            $user = auth()->user();
             $student = Student::create([
                 'name' => $request->name,
                 'nisn' => $request->nisn,
                 'class' => $request->class ?? '',
                 'phone' => $request->phone,
+                'user_id' => $user->id,
             ]);
         } else {
-            // Update nama dan kelas jika kosong atau berubah
             $student->update([
                 'name' => $request->name,
                 'class' => $request->class ?? $student->class,
@@ -196,7 +181,6 @@ class StudentController extends Controller
             return response()->json(['message' => 'Student not found'], 404);
         }
 
-        // Ambil semua clubs
         $clubs = Club::all()->map(function ($club) use ($studentId) {
             $club->hash_id = Hashids::encode($club->id);
 
@@ -217,48 +201,52 @@ class StudentController extends Controller
 
     public function importExcel(Request $request)
     {
-        try {
-            $request->validate([
-                'file' => 'required|file|mimes:xlsx,xls',
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls',
+        ]);
+
+        $file = $request->file('file');
+        $spreadsheet = IOFactory::load($file->getRealPath());
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray();
+
+        for ($i = 1; $i < count($rows); $i++) {
+            $row = $rows[$i];
+
+            $nama    = $row[1];
+            $nisn    = $row[2];
+            $kelas   = $row[3];
+            $jurusan = $row[4];
+            $rombel  = $row[5] ?? 1;
+
+            if (!$nisn || !$nama || !$kelas || !$jurusan) continue;
+
+            $student = Student::create([
+                'name'       => $nama,
+                'nisn'       => $nisn,
+                'class'      => $kelas,
+                'id_jurusan' => $jurusan,
+                'rombel'     => $rombel,
             ]);
 
-            $file = $request->file('file');
-            $spreadsheet = IOFactory::load($file->getRealPath());
-            $sheet = $spreadsheet->getActiveSheet();
-            $rows = $sheet->toArray();
-
-            for ($i = 1; $i < count($rows); $i++) {
-                $row = $rows[$i];
-
-                $nama    = $row[1];
-                $nisn    = $row[2];
-                $kelas   = $row[3];
-                $jurusan = $row[4];
-                $rombel = $row[5];
-
-                if (!$nisn || !$nama || !$kelas || !$jurusan || !$rombel) continue;
-
-                $student = Student::create([
-                    'name'       => $nama,
-                    'nisn'       => $nisn,
-                    'class'      => $kelas,
-                    'id_jurusan' => $jurusan,
-                    'rombel' => $rombel,
-                ]);
-
-                User::create([
+            if ($student) {
+                $user = User::create([
                     'name'       => $nama,
                     'username'   => $nisn,
                     'password'   => Hash::make('password12345'),
-                    'student_id' => $student->id,
                 ]);
-            }
 
-            return response()->json(['message' => 'Data berhasil diimpor.']);
-        } catch (\Exception $e) {
-            Log::error('Import error: ' . $e->getMessage());
-            return response()->json(['message' => 'Gagal import: ' . $e->getMessage()], 500);
+                if ($user) {
+                    $student->update(['user_id' => $user->id]);
+                } else {
+                    Log::error('Gagal membuat user untuk siswa NISN: ' . $nisn);
+                }
+            } else {
+                Log::error('Gagal membuat student untuk NISN: ' . $nisn);
+            }
         }
+
+        return response()->json(['message' => 'Data berhasil diimpor.']);
     }
 
     public function downloadTemplate()
@@ -277,7 +265,6 @@ class StudentController extends Controller
 
         $writer = new Xlsx($spreadsheet);
 
-        // kirim langsung via stream
         return new StreamedResponse(function () use ($writer) {
             $writer->save('php://output');
         }, 200, [
@@ -299,7 +286,6 @@ class StudentController extends Controller
         return response()->json(['message' => 'Siswa berhasil dinaikkan.']);
     }
 
-
     public function getByClass($class)
     {
         $students = Student::with('jurusan')->where('class', $class)->get();
@@ -320,7 +306,6 @@ class StudentController extends Controller
             });
         }
 
-        // Order by jurusan.id, rombel (as integer), then name alphabetically
         $query->join('jurusans', 'students.id_jurusan', '=', 'jurusans.id')
             ->orderBy('jurusans.id')
             ->orderByRaw('CAST(rombel AS UNSIGNED)')
@@ -329,5 +314,27 @@ class StudentController extends Controller
         $students = $query->select('students.*')->get();
 
         return response()->json($students);
+    }
+
+    public function deleteMultiple(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer'
+        ]);
+
+        foreach ($request->ids as $id) {
+            $student = Student::find($id);
+            if ($student) {
+                // Hapus user-nya dulu
+                if ($student->user_id) {
+                    User::where('id', $student->user_id)->delete();
+                }
+                // Hapus student-nya juga
+                $student->delete();
+            }
+        }
+
+        return response()->json(['message' => 'Siswa & user berhasil dihapus']);
     }
 }

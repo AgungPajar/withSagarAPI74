@@ -148,6 +148,8 @@ class ClubRequestController extends Controller
 
         $members = DB::table('club_student')
             ->join('students', 'club_student.student_id', '=', 'students.id')
+            ->leftJoin('jurusans', 'students.id_jurusan', '=', 'jurusans.id')
+
             ->where('club_student.club_id', $clubId)
             ->select(
                 'club_student.id as club_student_id', // Kalau butuh ID buat hapus dari relasi
@@ -155,7 +157,9 @@ class ClubRequestController extends Controller
                 'students.nisn',
                 'students.name',
                 'students.class',
-                'students.phone'
+                'students.phone',
+                'students.rombel',
+                'jurusans.singkatan as jurusan_singkatan' 
             )
             ->get();
 
