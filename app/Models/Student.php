@@ -9,12 +9,12 @@ class Student extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'nisn', 'class', 'phone', 'user_id', 'id_jurusan', 'rombel', 'tanggal_lahir'];
+    protected $fillable = ['name', 'nisn', 'class', 'phone', 'user_id', 'id_jurusan', 'rombel', 'tanggal_lahir', 'alamat'];
 
     public function user()
-{
-    return $this->belongsTo(User::class);
-}
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function clubs()
     {

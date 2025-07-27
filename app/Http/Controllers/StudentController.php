@@ -61,6 +61,7 @@ class StudentController extends Controller
             'jurusan' => $student->jurusan->nama ?? null,
             'phone' => $student->phone,
             'tanggal_lahir' => $student->tanggal_lahir,
+            'alamat' => $student->alamat,
         ]);
     }
 
@@ -77,6 +78,7 @@ class StudentController extends Controller
             'phone' => 'required|string|max:20',
             'tanggal_lahir' => 'nullable|date',
             'password' => 'nullable|string|min:8',
+            'alamat' => 'nullable|string|max:500',
         ]);
 
         $user->name = $validated['name'];
@@ -89,6 +91,7 @@ class StudentController extends Controller
         $student->name = $validated['name'];
         $student->phone = $validated['phone'];
         $student->tanggal_lahir = $validated['tanggal_lahir'];
+        $student->alamat = $validated['alamat'];
         $student->save();
 
         return response()->json(['message' => 'Profil berhasil diupdate.']);
@@ -138,6 +141,7 @@ class StudentController extends Controller
             'nisn' => 'required|string|max:20',
             'class' => 'required|string|max:50',
             'phone' => 'required|string|max:50',
+            'alamat' => 'required|string|max:500',
         ]);
 
         $student = Student::where('nisn', $request->nisn)->first();
@@ -149,6 +153,7 @@ class StudentController extends Controller
                 'nisn' => $request->nisn,
                 'class' => $request->class ?? '',
                 'phone' => $request->phone,
+                'alamat' => $request->alamat,
                 'user_id' => $user->id,
             ]);
         } else {
@@ -156,6 +161,7 @@ class StudentController extends Controller
                 'name' => $request->name,
                 'class' => $request->class ?? $student->class,
                 'phone' => $request->phone,
+                'alamat' => $request->alamat,
             ]);
         }
 

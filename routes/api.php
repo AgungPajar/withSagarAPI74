@@ -93,6 +93,9 @@ Route::middleware('auth:sanctum')->group(function () {
   route::apiResource('students', StudentController::class)->only(['destroy']);
 
   Route::get('/rekapitulasi', [RekapController::class, 'index']);
+
+Route::get('/get-club-by-user/{userId}', [ClubController::class, 'getByUser']);
+
 });
 
 Route::get('/pendaftaran', [LombaRegistrationController::class, 'index']);

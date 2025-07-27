@@ -89,28 +89,30 @@ class ClubController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
-            'name' => 'required|string|max:255',
+            'username' => 'sometimes|required|string|max:255|unique:users,username,' . $user->id,
+            'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
             'group_link' => 'nullable|url',
-            'password' => 'nullable|string|min:6',
+            'new_password' => 'nullable|string|min:6|confirmed',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        // ✅ Jangan set name lagi karena kolom name udah ga ada di tabel users
-        $user->username = $request->username;
+        $user->username = $request->username ?? $user->username;
+        $user->name = $request->name ?? $user->name;
 
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
+        // Hash password kalau diisi
+        if ($request->filled('new_password')) {
+            $user->password = Hash::make($request->new_password);
         }
 
         $user->save();
 
-        // ✅ Update club berdasarkan user_id
+        $club = $user->club;
+
         $club = Club::where('user_id', $user->id)->first();
 
         if ($club) {
-            $club->name = $request->name;
+            $club->name = $request->name ?? $club->name;
             $club->description = $request->description ?? $club->description;
             $club->group_link = $request->group_link ?? $club->group_link;
 
@@ -141,7 +143,6 @@ class ClubController extends Controller
         ]);
     }
 
-
     public function destroy($id)
     {
         $club = Club::with('user')->findOrFail($id);
@@ -151,5 +152,20 @@ class ClubController extends Controller
         }
         $club->delete();
         return response()->json(null, 204);
+    }
+
+    public function getByUser($userId)
+    {
+        $club = Club::where('user_id', $userId)->first();
+
+        if (!$club) {
+            return response()->json(['message' => 'Club not found'], 404);
+        }
+
+        return response()->json([
+            'id' => $club->id,
+            'name' => $club->name,
+            'hash_id' => \Vinkla\Hashids\Facades\Hashids::encode($club->id),
+        ]);
     }
 }

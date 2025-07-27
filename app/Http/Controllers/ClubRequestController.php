@@ -10,8 +10,27 @@ use Vinkla\Hashids\Facades\Hashids;
 
 class ClubRequestController extends Controller
 {
+    private function resolveClubId($input)
+    {
+        if (is_numeric($input)) return intval($input); // tangkap angka dulu bro
+        $decoded = Hashids::decode($input);
+        return count($decoded) > 0 ? $decoded[0] : null;
+    }
+
+    // private function authorizeClub($clubId)
+    // {
+    //     $club = Club::find($clubId);
+    //     if (!$club || $club->user_id !== auth()->id()) {
+    //         abort(403, 'Unauthorized access to this club.');
+    //     }
+    //     return $club;
+    // }
+
     public function index($clubId)
     {
+        $clubId = $this->resolveClubId($clubId);
+        // $this->authorizeClub($clubId);
+
         $requests = DB::table('club_student_requests')
             ->join('students', 'club_student_requests.student_id', '=', 'students.id')
             ->where('club_student_requests.club_id', $clubId)
@@ -24,7 +43,7 @@ class ClubRequestController extends Controller
 
     public function store($hashId)
     {
-        $clubId = Hashids::decode($hashId)[0] ?? null;
+        $clubId = $this->resolveClubId($hashId);
         $user = auth()->user();
 
         if (!$clubId || !$user || !$user->student_id) {
@@ -44,7 +63,9 @@ class ClubRequestController extends Controller
 
     public function requestJoin($hashId, Request $request)
     {
-        $clubId = Hashids::decode($hashId)[0] ?? null;
+        $clubId = $this->resolveClubId($hashId);
+        // $this->authorizeClub($clubId);
+        
         if (!$clubId) return response()->json(['message' => 'Invalid club ID'], 404);
 
         $user = $request->user();
@@ -61,21 +82,26 @@ class ClubRequestController extends Controller
         return response()->json(['message' => 'Permintaan bergabung telah dikirim. Menunggu konfirmasi.']);
     }
 
-
-
     public function pendingRequests($hashedId)
     {
-        $clubId = Hashids::decode($hashedId)[0] ?? null;
-
-        if (!$clubId) {
-            return response()->json(['message' => 'Club not found'], 404);
-        }
+        $clubId = $this->resolveClubId($hashedId);
+        // $this->authorizeClub($clubId);
+        
+        if (!$clubId) return response()->json(['message' => 'Club not found'], 404);
 
         $requests = DB::table('club_student_requests')
             ->join('students', 'club_student_requests.student_id', '=', 'students.id')
+            ->leftJoin('jurusans', 'students.id_jurusan', '=', 'jurusans.id')
             ->where('club_student_requests.club_id', $clubId)
             ->where('club_student_requests.status', 'pending')
-            ->select('club_student_requests.id', 'students.name', 'students.class', 'students.nisn')
+            ->select(
+                'club_student_requests.id', 
+                'students.name', 
+                'students.class',
+                'students.rombel',
+                'jurusans.singkatan as jurusan_singkatan',
+                'students.nisn',
+            )
             ->get();
 
         return response()->json($requests);
@@ -83,19 +109,16 @@ class ClubRequestController extends Controller
 
     public function confirmRequest($hashedClubId, $requestId, Request $request)
     {
-        $clubId = Hashids::decode($hashedClubId)[0] ?? null;
-        if (!$clubId) {
-            return response()->json(['message' => 'Club tidak valid'], 400);
-        }
+        $clubId = $this->resolveClubId($hashedClubId);
+        // $this->authorizeClub($clubId);
+        
+        if (!$clubId) return response()->json(['message' => 'Club tidak valid'], 400);
 
         $status = $request->input('status');
-        $validStatus = ['accepted', 'rejected'];
-
-        if (!in_array($status, $validStatus)) {
+        if (!in_array($status, ['accepted', 'rejected'])) {
             return response()->json(['message' => 'Status tidak valid'], 400);
         }
 
-        // Ambil data request
         $requestData = DB::table('club_student_requests')
             ->where('id', $requestId)
             ->where('club_id', $clubId)
@@ -105,15 +128,10 @@ class ClubRequestController extends Controller
             return response()->json(['message' => 'Request tidak ditemukan'], 404);
         }
 
-        // Update status request
         DB::table('club_student_requests')
             ->where('id', $requestId)
-            ->update([
-                'status' => $status,
-                'updated_at' => now()
-            ]);
+            ->update(['status' => $status, 'updated_at' => now()]);
 
-        // Kalau diterima, cek dulu biar gak dobel insert
         if ($status === 'accepted') {
             $alreadyJoined = DB::table('club_student')
                 ->where('club_id', $clubId)
@@ -133,66 +151,51 @@ class ClubRequestController extends Controller
         return response()->json(['message' => 'Status updated']);
     }
 
-
     public function getAcceptedMembers($hashedId)
     {
-        $decoded = Hashids::decode($hashedId);
-
-        if (count($decoded) === 0) {
-            return response()->json([
-                'message' => 'Ekskul tidak ditemukan (hash_id tidak valid)'
-            ], 404);
+        $clubId = $this->resolveClubId($hashedId);
+        // $this->authorizeClub($clubId);
+        
+        if (!$clubId) {
+            return response()->json(['message' => 'Ekskul tidak ditemukan (ID tidak valid)'], 404);
         }
-
-        $clubId = $decoded[0];
 
         $members = DB::table('club_student')
             ->join('students', 'club_student.student_id', '=', 'students.id')
             ->leftJoin('jurusans', 'students.id_jurusan', '=', 'jurusans.id')
-
             ->where('club_student.club_id', $clubId)
             ->select(
-                'club_student.id as club_student_id', // Kalau butuh ID buat hapus dari relasi
+                'club_student.id as club_student_id',
                 'students.id',
                 'students.nisn',
                 'students.name',
                 'students.class',
                 'students.phone',
                 'students.rombel',
-                'jurusans.singkatan as jurusan_singkatan' 
+                'jurusans.singkatan as jurusan_singkatan'
             )
             ->get();
 
         return response()->json($members);
     }
 
-
     public function deleteMember($hashedClubId, $studentId)
     {
-        $decoded = Hashids::decode($hashedClubId);
-        if (count($decoded) === 0) {
-            return response()->json(['message' => 'Club tidak valid'], 400);
-        }
+        $clubId = $this->resolveClubId($hashedClubId);
+        // $this->authorizeClub($clubId);
+        
+        if (!$clubId) return response()->json(['message' => 'Club tidak valid'], 400);
 
-        $clubId = $decoded[0];
-
-        // Hapus dari tabel relasi jika ada
         DB::table('club_student')
             ->where('club_id', $clubId)
             ->where('student_id', $studentId)
             ->delete();
 
-        // Tetap update status menjadi rejected (fallback)
         $updated = DB::table('club_student_requests')
             ->where('club_id', $clubId)
             ->where('student_id', $studentId)
             ->whereIn('status', ['accepted', 'pending'])
-            ->update([
-                'status' => 'rejected',
-                'updated_at' => now()
-            ]);
-            
-
+            ->update(['status' => 'rejected', 'updated_at' => now()]);
 
         if ($updated) {
             return response()->json(['message' => 'Anggota berhasil dihapus & status diubah ke rejected']);
