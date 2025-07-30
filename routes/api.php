@@ -44,58 +44,61 @@ Route::get('/export/harian', [ExportExcelController::class, 'exportHarian']);
 Route::get('/rekap/export/monthly', [ExportExcelController::class, 'exportBulanan']);
 
 Route::prefix('admin')->middleware('auth:sanctum',)->group(function () {
-  Route::get('/clubs', [ClubController::class, 'index']);
-  Route::post('/clubs', [ClubController::class, 'store']);
-  Route::delete('/clubs/{club}', [ClubController::class, 'destroy']);
-  Route::post('/clubs/update', [ClubController::class, 'update']);
+    Route::get('/clubs', [ClubController::class, 'index']);
+    Route::post('/clubs', [ClubController::class, 'store']);
+    Route::delete('/clubs/{club}', [ClubController::class, 'destroy']);
+    Route::post('/clubs/update', [ClubController::class, 'update']);
 
-  Route::get('/profile', [AdminController::class, 'show']);
-  Route::post('/profile', [AdminController::class, 'update']);
+    Route::get('/profile', [AdminController::class, 'show']);
+    Route::post('/profile', [AdminController::class, 'update']);
 
-  Route::post('/students/import', [StudentController::class, 'importExcel']);
+    Route::post('/students/import', [StudentController::class, 'importExcel']);
 
-  Route::post('/students/naik-kelas', [StudentController::class, 'promote']);
-  Route::get('/students/class/{class}', [StudentController::class, 'getByClass']);
-  Route::get('/jurusans', [JurusanController::class, 'index']);
-  // Route::get('/majors', [MajorController::class, 'index']);
+    Route::post('/students/naik-kelas', [StudentController::class, 'promote']);
+    Route::get('/students/class/{class}', [StudentController::class, 'getByClass']);
+    Route::get('/jurusans', [JurusanController::class, 'index']);
+    // Route::get('/majors', [MajorController::class, 'index']);
 
-  Route::get('/ttsform', [TTSFeedbackController::class, 'index']);
+    Route::get('/ttsform', [TTSFeedbackController::class, 'index']);
 
-  Route::get('/students', [StudentController::class, 'indexStudents']);
+    Route::get('/students', [StudentController::class, 'indexStudents']);
 
-  Route::delete('/students/delete-multiple', [StudentController::class, 'deleteMultiple']);
+    Route::delete('/students/delete-multiple', [StudentController::class, 'deleteMultiple']);
+
+    Route::get('/activity-reports', [AktivityReportController::class,'getAll']);
 });
 Route::get('/students/download-template', [StudentController::class, 'downloadTemplate']);
 
 Route::middleware('auth:sanctum')->group(function () {
-  Route::get('/user', fn($request) => $request->user());
+    Route::get('/user', fn($request) => $request->user());
 
-  Route::get('/clubs/{hashedId}', [ClubController::class, 'show']);
-  Route::get('/clubs/{hashedId}/students', [ClubController::class, 'getStudents']);
-  Route::post('/clubs/{hashedId}/members', [StudentController::class, 'storeToClub']);
-  Route::get('/clubs/{hashedId}/members', [ClubRequestController::class, 'getAcceptedMembers']);
+    Route::get('/clubs/{hashedId}', [ClubController::class, 'show']);
+    Route::get('/clubs/{hashedId}/students', [ClubController::class, 'getStudents']);
+    Route::post('/clubs/{hashedId}/members', [StudentController::class, 'storeToClub']);
+    Route::get('/clubs/{hashedId}/members', [ClubRequestController::class, 'getAcceptedMembers']);
 
-  // Route::get('/clubs/{clubId}/requests', [ClubRequestController::class, 'index']);
-  Route::post('/clubs/{hashedId}/request-join', [ClubRequestController::class, 'requestJoin']);
-  Route::get('/clubs/{hashedId}/requests', [ClubRequestController::class, 'pendingRequests']);
-  Route::post('/clubs/{clubId}/requests/{requestId}/confirm', [ClubRequestController::class, 'confirmRequest']);
-  Route::delete('/clubs/{clubId}/requests/{requestId}', [ClubRequestController::class, 'deleteMember']);
+    // Route::get('/clubs/{clubId}/requests', [ClubRequestController::class, 'index']);
+    Route::post('/clubs/{hashedId}/request-join', [ClubRequestController::class, 'requestJoin']);
+    Route::get('/clubs/{hashedId}/requests', [ClubRequestController::class, 'pendingRequests']);
+    Route::post('/clubs/{clubId}/requests/{requestId}/confirm', [ClubRequestController::class, 'confirmRequest']);
+    Route::delete('/clubs/{clubId}/requests/{requestId}', [ClubRequestController::class, 'deleteMember']);
 
 
-  Route::post('profile/update', [ClubController::class, 'update']);
+    Route::post('profile/update', [ClubController::class, 'update']);
 
-  Route::post('/attendances', [AttendanceController::class, 'store']);
-  Route::post('/clubs/{hashedId}/activity-reports', [AktivityReportController::class, 'store']);
+    Route::post('/attendances', [AttendanceController::class, 'store']);
+    Route::post('/clubs/{hashedId}/activity-reports', [AktivityReportController::class, 'store']);
+    Route::get('/clubs/{hashedId}/activity-reports', [AktivityReportController::class, 'getByClub']);
 
-  Route::get('/student/{studentHashId}/dashboard', [StudentController::class, 'dashboard']);
-  Route::get('/student/{hashedId}', [StudentController::class, 'show']);
-  Route::post('/update-profile-student', [StudentController::class, 'updateProfile']);
-  route::apiResource('students', StudentController::class)->only(['destroy']);
 
-  Route::get('/rekapitulasi', [RekapController::class, 'index']);
+    Route::get('/student/{studentHashId}/dashboard', [StudentController::class, 'dashboard']);
+    Route::get('/student/{hashedId}', [StudentController::class, 'show']);
+    Route::post('/update-profile-student', [StudentController::class, 'updateProfile']);
+    route::apiResource('students', StudentController::class)->only(['destroy']);
 
-Route::get('/get-club-by-user/{userId}', [ClubController::class, 'getByUser']);
+    Route::get('/rekapitulasi', [RekapController::class, 'index']);
 
+    Route::get('/get-club-by-user/{userId}', [ClubController::class, 'getByUser']);
 });
 
 Route::get('/pendaftaran', [LombaRegistrationController::class, 'index']);
