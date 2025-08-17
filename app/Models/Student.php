@@ -30,6 +30,6 @@ class Student extends Model
 
     public function getKelasLengkapAttribute()
     {
-        return "{$this->class} {$this->jurusan->singkatan} {$this->romblel}";
+        return "{$this->class} {$this->jurusan->singkatan} {$this->rombel}";
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AgustusanController;
 use Illuminate\Http\Request;
 use App\Models\ActivityReport;
 use Illuminate\Support\Facades\DB;
@@ -35,6 +36,8 @@ use App\Http\Controllers\Admin\ClubController as AdminClubController;
 Route::post('/register-siswa', [RegistrationController::class, 'register']);
 
 Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 Route::get('/clubs', [ClubController::class, 'index']);
 
@@ -99,9 +102,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/rekapitulasi', [RekapController::class, 'index']);
 
     Route::get('/get-club-by-user/{userId}', [ClubController::class, 'getByUser']);
+
+    Route::get('/clubs/{hashedId/search', [ClubRequestController::class,'searchStudent']);
+    Route::get('/clubs/{club}/available-students', [ClubRequestController::class, 'getAvailableStudents']);
+    Route::post('/clubs/{hashedId}/add-student', [ClubRequestController::class,'addStudent']);
 });
 
 Route::get('/pendaftaran', [LombaRegistrationController::class, 'index']);
 Route::post('/daftar-lomba', [LombaRegistrationController::class, 'store']);
 Route::put('/pendaftaran/{id}', [LombaRegistrationController::class, 'update']);
 Route::delete('/pendaftaran/{id}', [LombaRegistrationController::class, 'destroy']);
+
+// Route::get('/students/search-agustus', [AgustusanController::class, 'searchByNisn']);
+Route::get('/students/search-agustus', [AgustusanController::class, 'searchStudent']);
+Route::post('/students/register-agustus', [AgustusanController::class, 'registerAgustus']);
+Route::get('/jurusans', [AgustusanController::class, 'getJurusans']);
+Route::get('/students/pendaftar-agustusan', [AgustusanController::class, 'listPendaftar']);
