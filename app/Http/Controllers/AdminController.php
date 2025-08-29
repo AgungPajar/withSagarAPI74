@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Club;
+use App\Models\Schedule;
+use App\Models\Attendance;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -25,28 +29,25 @@ class AdminController extends Controller
             ] : null,
         ]);
     }
-    // POST: /admin/profile
     public function update(Request $request)
     {
         $user = Auth::user();
 
         $request->validate([
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
-            'name' => 'required|string|max:255', // ini tetap, tapi untuk club
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'group_link' => 'nullable|url',
             'password' => 'nullable|string|min:6',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        // Update user
         $user->username = $request->username;
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
         $user->save();
 
-        // Update club
         $club = Club::where('user_id', $user->id)->first();
 
         if (!$club) {
@@ -82,6 +83,42 @@ class AdminController extends Controller
             'message' => 'Profile updated successfully',
             'user' => $user,
             'club' => $club->fresh()->makeHidden(['created_at', 'updated_at']),
+        ]);
+    }
+
+    public function dashboardStats() {
+        $today = Carbon::today();
+        $dayOfWeek = $today->locale('id')->dayName;
+
+        $totalClubs = Club::count();
+
+        $totalMembers = DB::table('club_student')->count();
+
+        $todayAttendance = Attendance::whereDate('date', $today)->where('status', 'hadir')->count();
+
+        $clubsWithScheduleToday = Schedule::where('day_of_week', $dayOfWeek)->pluck('club_id');
+
+        $clubWithAttendanceToday = Attendance::whereDate('date', $today)->pluck('club_id')->unique();
+
+        $violatingClubIds = $clubsWithScheduleToday->diff($clubWithAttendanceToday);
+        $violatingClubs = Club::whereIn('id', $violatingClubIds)->get(['id', 'name','logo_path']);
+
+        $incompleteClubs = Club::where(function ($query) {
+            $query->whereNull('description')
+                  ->orWhere('description', '')
+                  ->orWhereNull('group_link')
+                  ->orWhere('group_link', '');
+        })
+        ->orWhereDoesntHave('schedules')
+        ->get(['id', 'name', 'logo_path']);
+
+        return response()->json([
+            'totalClubs' => $totalClubs,
+            'totalMembers' => $totalMembers,
+            'todayAttendance' => $todayAttendance,
+            'violationCount' => $violatingClubs->count(),
+            'violatingClubs' => $violatingClubs,
+            'incompleteClubs' => $incompleteClubs,
         ]);
     }
 }

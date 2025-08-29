@@ -21,7 +21,7 @@ class ClubController extends Controller
             if (is_int($club->id)) {
                 $club->hash_id = Hashids::encode($club->id);
             } else {
-                $club->hash_id = null; // fallback jika id tidak valid
+                $club->hash_id = null;
             }
             return $club;
         });
@@ -100,7 +100,6 @@ class ClubController extends Controller
         $user->username = $request->username ?? $user->username;
         $user->name = $request->name ?? $user->name;
 
-        // Hash password kalau diisi
         if ($request->filled('new_password')) {
             $user->password = Hash::make($request->new_password);
         }
@@ -165,7 +164,7 @@ class ClubController extends Controller
         return response()->json([
             'id' => $club->id,
             'name' => $club->name,
-            'hash_id' => \Vinkla\Hashids\Facades\Hashids::encode($club->id),
+            'hash_id' => Hashids::encode($club->id),
         ]);
     }
 }

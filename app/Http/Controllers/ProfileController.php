@@ -23,7 +23,6 @@ class ProfileController extends Controller
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        // ✅ Jangan set name lagi karena kolom name udah ga ada di tabel users
         $user->username = $request->username;
 
         if ($request->filled('password')) {
@@ -32,7 +31,6 @@ class ProfileController extends Controller
 
         $user->save();
 
-        // ✅ Update club berdasarkan user_id
         $club = Club::where('user_id', $user->id)->first();
 
         if ($club) {
