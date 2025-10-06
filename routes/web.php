@@ -18,7 +18,20 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::post('/profile/update', function () {
-    Log::info('>>>> MASUK WEB ROUTE /profile/update');
-    return response()->json(['message' => 'This hit web.php']);
+// Administrator area
+Route::group(['prefix' => 'admin'], function () {
+    Route::get('/login', function () {
+        return view('administrator.auth.login');
+    })->name('admin.login');
+
+    Route::get('/dashboard', function () {
+        return view('administrator.dashboard.index');
+    })->middleware('auth')->name('admin.dashboard');
+
+    Route::post('/logout', function () {
+        auth()->logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+        return redirect()->route('admin.login');
+    })->name('admin.logout');
 });
