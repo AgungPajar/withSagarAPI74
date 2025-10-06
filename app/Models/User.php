@@ -55,4 +55,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Club::class);
     }
+
+    public function groups()
+    {
+        return $this->morphToMany(UserGroup::class, 'user', 'group_user', 'user_id', 'group_id')->wherePivot('user_type','user');
+    }
 }

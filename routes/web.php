@@ -26,7 +26,7 @@ Route::group(['prefix' => 'admin'], function () {
 
     Route::get('/dashboard', function () {
         return view('administrator.dashboard.index');
-    })->middleware('auth')->name('admin.dashboard');
+    })->middleware('auth:admin')->name('admin.dashboard');
 
     Route::post('/logout', function () {
         auth()->logout();

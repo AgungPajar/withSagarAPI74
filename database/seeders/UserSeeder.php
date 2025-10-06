@@ -11,17 +11,19 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        $mpk = User::create([
+        $mpk = User::updateOrCreate([
+            'username' => 'mpk'
+        ], [
             'name' => 'MPK',
-            'username' => 'mpk',
             'email' => 'mpk@example.com',
             'password' => Hash::make('admin1234'),
             'role' => 'mpk',
         ]);
 
-        $osis = User::create([
+        $osis = User::updateOrCreate([
+            'username' => 'osis'
+        ], [
             'name' => 'OSIS',
-            'username' => 'osis',
             'email' => 'osis@example.com',
             'password' => Hash::make('admin1234'),
             'role' => 'osis',
@@ -73,10 +75,13 @@ class UserSeeder extends Seeder
 
         foreach ($clubs as $club) {
             // Buat user
-            $user = User::create([
+            $username = strtolower(str_replace(' ', '_', $club['name']));
+            $email = strtolower(str_replace(' ', '_', $club['name']) . '@example.com');
+            $user = User::updateOrCreate([
+                'username' => $username
+            ], [
                 'name'=> $club['name'],
-                'username' => strtolower(str_replace(' ', '_', $club['name'])),
-                'email' => strtolower(str_replace(' ', '_', $club['name']) . '@example.com'),
+                'email' => $email,
                 'password' => Hash::make('admin123'),
                 'role' => 'club_pengurus',
             ]);

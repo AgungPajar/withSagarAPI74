@@ -21,7 +21,7 @@ class AdminLogin extends Component
     {
         $this->validate();
 
-        if (Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+        if (Auth::guard('admin')->attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
             session()->regenerate();
             return redirect()->route('admin.dashboard');
         }

@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             JurusanSeeder::class,
             StudentSeeder::class,
+            \Database\Seeders\AdminSeeder::class,
+            \Database\Seeders\UserGroupSeeder::class,
         ]);
     }
 }
