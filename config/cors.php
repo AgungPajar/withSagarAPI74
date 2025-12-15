@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:3000', 'https://webex.smknegeri1garut.sch.id', 'https://webex-backup.smknegeri1garut.sch.id',  'http://ossagar.selaju.dev'], // set ke domain frontend Anda, misalnya ['https://example.com']
+    'allowed_origins' => ['http://localhost:3000', 'https://webex.smknegeri1garut.sch.id', 'https://webex-backup.smknegeri1garut.sch.id',  'https://ossagar.selaju.dev'], // set ke domain frontend Anda, misalnya ['https://example.com']
 
     'allowed_origins_patterns' => [],
 
