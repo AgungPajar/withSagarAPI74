@@ -5,13 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Club;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
-use Vinkla\Hashids\Facades\Hashids;
 
 class ScheduleController extends Controller
 {
     public function index($clubHashedId)
     {
-        $id = Hashids::decode($clubHashedId)[0] ?? null;
+        $id = $clubHashedId ?? null;
         $club = Club::findOrFail($id);
 
         return $club->schedules;
@@ -19,7 +18,7 @@ class ScheduleController extends Controller
 
     public function store(Request $request, $clubHashedId)
     {
-        $id = Hashids::decode($clubHashedId)[0] ?? null;
+        $id = $clubHashedId ?? null;
         $club = Club::findOrFail($id);
 
         $validated = $request->validate([

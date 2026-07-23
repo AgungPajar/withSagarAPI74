@@ -14,9 +14,9 @@ class CreateClubStudentRequestsTable extends Migration
     public function up()
     {
         Schema::create('club_student_requests', function (Blueprint $table) {
-    $table->id();
-    $table->unsignedBigInteger('club_id');
-    $table->unsignedBigInteger('student_id');
+    $table->uuid('id')->primary();
+    $table->uuid('club_id');
+    $table->uuid('student_id');
     $table->string('status')->default('pending'); // pending, accepted, rejected
     $table->timestamps();
 

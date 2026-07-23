@@ -8,7 +8,6 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Vinkla\Hashids\Facades\Hashids;
 use Illuminate\Support\Facades\Hash;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Facades\Response;
@@ -37,7 +36,7 @@ class StudentController extends Controller
 
     public function show(Request $request, $hashedId)
     {
-        $decoded = Hashids::decode($hashedId);
+        $decoded = [$hashedId];
         if (count($decoded) === 0) {
             return response()->json(['message' => 'Siswa tidak ditemukan'], 404);
         }
@@ -128,7 +127,7 @@ class StudentController extends Controller
 
     public function storeToClub(Request $request, $hashedId)
     {
-        $decoded = Hashids::decode($hashedId);
+        $decoded = [$hashedId];
 
         if (count($decoded) === 0) {
             return response()->json(['message' => 'Invalid club ID'], 404);
@@ -175,7 +174,7 @@ class StudentController extends Controller
 
     public function dashboard($hashId)
     {
-        $decoded = Hashids::decode($hashId);
+        $decoded = [$hashId];
         if (count($decoded) === 0) {
             return response()->json(['message' => 'Invalid hash ID'], 404);
         }
@@ -188,7 +187,7 @@ class StudentController extends Controller
         }
 
         $clubs = Club::all()->map(function ($club) use ($studentId) {
-            $club->hash_id = Hashids::encode($club->id);
+            $club->hash_id = $club->id;
 
             $status = DB::table('club_student_requests')
                 ->where('club_id', $club->id)

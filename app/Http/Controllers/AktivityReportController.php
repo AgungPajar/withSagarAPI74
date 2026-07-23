@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ActivityReport;
-use Vinkla\Hashids\Facades\Hashids;
 use Cloudinary\Cloudinary;
 use Illuminate\Support\Facades\Hash;
 
@@ -12,7 +11,7 @@ class AktivityReportController extends Controller
 {
     public function store(Request $request, $hashedId)
     {
-        $decoded = Hashids::decode($hashedId);
+        $decoded = [$hashedId];
         if (count($decoded) === 0) {
             return response()->json([
                 'message' => 'Invalid ID provided.',
@@ -64,7 +63,7 @@ class AktivityReportController extends Controller
 
     public function getByClub($hashedId)
     {
-        $decoded = Hashids::decode($hashedId);
+        $decoded = [$hashedId];
 
         if (count($decoded) === 0) {
             return response()->json(['message' => 'Invalid club ID'], 404);

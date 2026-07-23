@@ -15,7 +15,7 @@ class CreateRegistrasiAgustusanTable extends Migration
     {
         if (!Schema::hasTable('registrasi_agustusan')) {
             Schema::create('registrasi_agustusan', function (Blueprint $table) {
-                $table->id();
+                $table->uuid('id')->primary();
                 $table->string('cabang_lomba');
                 $table->string('nama_tim')->nullable();
                 $table->string('nomor_hp')->nullable();

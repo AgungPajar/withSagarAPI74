@@ -29,7 +29,7 @@ class UserGroupSeeder extends Seeder
         $adminGroup->permissions()->syncWithoutDetaching([$perm->id]);
 
         // Attach to seeded admin if exists
-        $admin = Admin::where('email','admin@example.com')->first();
+        $admin = Admin::where('email','dev@gncs.dev')->first();
         if ($admin) {
             $admin->groups()->syncWithoutDetaching([$adminGroup->id]);
         }

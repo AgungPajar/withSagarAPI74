@@ -8,7 +8,6 @@ use App\Models\Student;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\UploadedFile;
-use Vinkla\Hashids\Facades\Hashids;
 use Illuminate\Support\Facades\Hash;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -68,7 +67,7 @@ class StudentService
 
     public function addStudentToClub(array $data, string $clubHashedId): Student
     {
-        $clubId = Hashids::decode($clubHashedId)[0] ?? null;
+        $clubId = $clubHashedId ?? null;
         if (!$clubId) {
             throw new \Exception("Invalid club ID");
         }
@@ -91,7 +90,7 @@ class StudentService
 
     public function getStudentDashboardData(string $studentHashedId): array
     {
-        $studentId = Hashids::decode($studentHashedId)[0] ?? null;
+        $studentId = $studentHashedId ?? null;
         $student = Student::find($studentId);
 
         if (!$student) {
@@ -99,7 +98,7 @@ class StudentService
         }
 
         $clubs = Club::all()->map(function ($club) use ($studentId) {
-            $club->hash_id = Hashids::encode($club->id);
+            $club->hash_id = $club->id;
             $status = DB::table('club_student_requests')
                 ->where('club_id', $club->id)
                 ->where('student_id', $studentId)

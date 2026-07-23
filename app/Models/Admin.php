@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Admin extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, HasUuids;
 
     protected $guard = 'admin';
 

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use Illuminate\Http\Request;
-use Vinkla\Hashids\Facades\Hashids;
 use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
@@ -31,7 +30,7 @@ class AttendanceController extends Controller
 
         foreach ($data as $index => $item) {
             if (!is_numeric($item['club_id'])) {
-                $decoded = Hashids::decode($item['club_id']);
+                $decoded = [$item['club_id']];
                 if (empty($decoded)) {
                     return response()->json([
                         'message' => 'ID klub tidak valid pada item ke-' . ($index + 1),

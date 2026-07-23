@@ -14,8 +14,8 @@ class CreateActivityReportsTable extends Migration
     public function up()
     {
         Schema::create('activity_reports', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('club_id')->constrained()->onDelete('cascade');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('club_id')->constrained()->onDelete('cascade');
             $table->date('date');
             $table->text('materi');
             $table->string('tempat');

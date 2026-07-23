@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class Student extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
-    protected $fillable = ['name', 'nisn', 'class', 'phone', 'user_id', 'id_jurusan', 'rombel', 'tanggal_lahir', 'alamat'];
+    protected $fillable = ['name', 'nisn', 'kelas_id', 'phone', 'user_id', 'tanggal_lahir', 'alamat'];
 
     public function user()
     {
@@ -21,15 +22,13 @@ class Student extends Model
         return $this->belongsToMany(Club::class, 'club_student', 'student_id', 'club_id');
     }
 
-    public function jurusan()
+    public function ledClubs()
     {
-        return $this->belongsTo(Jurusan::class, 'id_jurusan');
+        return $this->hasMany(Club::class, 'student_id');
     }
 
-    protected $appends = ['kelas_lengkap'];
-
-    public function getKelasLengkapAttribute()
+    public function kelas()
     {
-        return "{$this->class} {$this->jurusan->singkatan} {$this->rombel}";
+        return $this->belongsTo(Kelas::class);
     }
 }

@@ -14,7 +14,7 @@ class CreateUsersTable extends Migration
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('name')->nullable();
             $table->string('username')->unique();
             $table->string('role')->default('student')->nullable();
@@ -33,7 +33,7 @@ class CreateUsersTable extends Migration
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->unique();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->foreignUuid('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longtext('payload');

@@ -7,7 +7,6 @@ use App\Models\Club;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Vinkla\Hashids\Facades\Hashids;
 
 class AuthController extends Controller
 {
@@ -38,12 +37,12 @@ class AuthController extends Controller
 
             if ($student) {
                 $studentId = $student->id;
-                $studentHashId = Hashids::encode($studentId);
+                $studentHashId = $studentId;
 
                 $firstClub = $student->clubs()->first();
                 if ($firstClub) {
                     $clubId = $firstClub->id;
-                    $clubHashId = Hashids::encode($clubId);
+                    $clubHashId = $clubId;
                 }
             }
         } else if ($user->role === 'club_pengurus') {
@@ -51,7 +50,7 @@ class AuthController extends Controller
 
             if ($club) {
                 $clubId = $club->id;
-                $clubHashId = Hashids::encode($clubId);
+                $clubHashId = $clubId;
             }
         }
 

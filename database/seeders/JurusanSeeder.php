@@ -3,7 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Jurusan;
+use App\Models\Kelas;
 
 class JurusanSeeder extends Seeder
 {
@@ -22,6 +23,13 @@ class JurusanSeeder extends Seeder
             ['nama' => 'Teknik Energi Terbarukan', 'singkatan' => 'TET'],
         ];
 
-        DB::table('jurusans')->insert($jurusans);
+        foreach ($jurusans as $j) {
+            $jurusan = Jurusan::create($j);
+            
+            // Create some default classes for each Jurusan
+            Kelas::create(['jurusan_id' => $jurusan->id, 'nama' => 'X ' . $j['singkatan'] . ' 1']);
+            Kelas::create(['jurusan_id' => $jurusan->id, 'nama' => 'XI ' . $j['singkatan'] . ' 1']);
+            Kelas::create(['jurusan_id' => $jurusan->id, 'nama' => 'XII ' . $j['singkatan'] . ' 1']);
+        }
     }
 }

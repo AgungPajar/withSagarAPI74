@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Student;
+use App\Models\Kelas;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Seeder;
 
@@ -17,18 +18,18 @@ class StudentSeeder extends Seeder
             'password' => Hash::make('password12345'),
             'role' => 'student',
         ]);
-        // Baru buat student dan assign user_id
-        $student = Student::create([
-            'name' => 'Agung Pajar',
-            'nisn' => '00723441322',
-            'class' => 'XI',
-            'id_jurusan' => 6,
-            'phone' => '08132323842',
-            'tanggal_lahir' => '2007-03-15',
-            'user_id' => $user->id,
-        ]);
-
         
+        $kelas = Kelas::where('nama', 'LIKE', '%PPL%')->first();
+
+        if ($kelas) {
+            $student = Student::create([
+                'name' => 'Agung Pajar',
+                'nisn' => '00723441322',
+                'kelas_id' => $kelas->id,
+                'phone' => '08132323842',
+                'tanggal_lahir' => '2007-03-15',
+                'user_id' => $user->id,
+            ]);
+        }
     }
 }
-

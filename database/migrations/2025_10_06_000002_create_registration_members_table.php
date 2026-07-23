@@ -15,10 +15,9 @@ class CreateRegistrationMembersTable extends Migration
     {
         if (!Schema::hasTable('registration_members')) {
             Schema::create('registration_members', function (Blueprint $table) {
-                $table->id();
-                $table->foreignId('registrasi_agustusan_id')->constrained('registrasi_agustusan')->onDelete('cascade');
-                $table->unsignedBigInteger('student_id');
-                $table->unsignedBigInteger('id_jurusan')->nullable();
+                $table->foreignUuid('registrasi_agustusan_id')->constrained('registrasi_agustusan')->onDelete('cascade');
+                $table->uuid('student_id');
+                $table->uuid('id_jurusan')->nullable();
                 $table->timestamps();
             });
         }

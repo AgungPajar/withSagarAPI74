@@ -9,9 +9,8 @@ class CreateGroupPermissionTable extends Migration
     public function up()
     {
         Schema::create('group_permission', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('group_id')->constrained('user_groups')->onDelete('cascade');
-            $table->foreignId('permission_id')->constrained('permissions')->onDelete('cascade');
+            $table->foreignUuid('group_id')->constrained('user_groups')->onDelete('cascade');
+            $table->foreignUuid('permission_id')->constrained('permissions')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use Illuminate\Http\Request;
-use Vinkla\Hashids\Facades\Hashids;
 
 class RekapController extends Controller
 {
     public function index(Request $request) {
         $hashId = $request->query('club_id');
-        $decoded = Hashids::decode($hashId);
+        $decoded = [$hashId];
 
         if (count($decoded) === 0) {
             return response()->json([

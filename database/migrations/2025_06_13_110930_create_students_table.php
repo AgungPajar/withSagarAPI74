@@ -14,18 +14,16 @@ class CreateStudentsTable extends Migration
     public function up()
     {
         Schema::create('students', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->uuid('id')->primary();
+            $table->uuid('user_id')->nullable();
             $table->string('name');
             $table->string('nisn')->unique();
             $table->string('phone')->nullable();
             $table->date('tanggal_lahir')->nullable();
-            $table->string('class');
-            $table->unsignedBigInteger('id_jurusan')->nullable();
-            $table->string('rombel')->nullable();
+            $table->uuid('kelas_id')->nullable();
             
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('id_jurusan')->references('id')->on('jurusans')->onDelete('set null');
+            $table->foreign('kelas_id')->references('id')->on('kelas')->onDelete('set null');
 
             $table->timestamps();
         });

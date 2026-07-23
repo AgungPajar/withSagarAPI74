@@ -6,7 +6,6 @@ use App\Models\Club;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Vinkla\Hashids\Facades\Hashids;
 
 class ClubRequestController extends Controller
 {
@@ -14,7 +13,7 @@ class ClubRequestController extends Controller
     {
         if (is_numeric($input))
             return intval($input); // tangkap angka dulu bro
-        $decoded = Hashids::decode($input);
+        $decoded = [$input];
         return count($decoded) > 0 ? $decoded[0] : null;
     }
 

@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Club extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected $table = 'clubs';
-    protected $fillable = ['user_id', 'name', 'description', 'logo_path', 'group_link'];
+    protected $fillable = ['student_id', 'name', 'description', 'logo_path', 'group_link'];
 
     public function students()
     {
@@ -22,9 +23,9 @@ class Club extends Model
         return $this->logo_path ? asset('storage/' . $this->logo_path) : null;
     }
 
-    public function user()
+    public function student()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Student::class, 'student_id');
     }
 
     public function schedules()

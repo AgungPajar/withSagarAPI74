@@ -14,7 +14,7 @@ class CreateLombaRegistrationsTable extends Migration
     public function up()
     {
         Schema::create('lomba_registrations', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('nama');
             $table->string('kelas');
             $table->string('nomor_hp');

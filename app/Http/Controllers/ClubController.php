@@ -8,7 +8,6 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Vinkla\Hashids\Facades\Hashids;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -19,7 +18,7 @@ class ClubController extends Controller
     {
         $clubs = Club::with('user')->get()->map(function ($club) {
             if (is_int($club->id)) {
-                $club->hash_id = Hashids::encode($club->id);
+                $club->hash_id = $club->id;
             } else {
                 $club->hash_id = null;
             }
@@ -54,7 +53,7 @@ class ClubController extends Controller
 
     public function show(Request $request, $hashedId)
     {
-        $decoded = Hashids::decode($hashedId);
+        $decoded = [$hashedId];
         if (count($decoded) === 0) {
             return response()->json([
                 'message' => 'Club not found',
@@ -164,7 +163,7 @@ class ClubController extends Controller
         return response()->json([
             'id' => $club->id,
             'name' => $club->name,
-            'hash_id' => Hashids::encode($club->id),
+            'hash_id' => $club->id,
         ]);
     }
 }

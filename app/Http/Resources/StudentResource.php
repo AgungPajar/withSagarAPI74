@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Vinkla\Hashids\Facades\Hashids;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class StudentResource extends JsonResource
@@ -16,7 +15,7 @@ class StudentResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => Hashids::encode($this->id), // Hash ID di sini
+            'id' => $this->id, // Hash ID di sini
             'name' => $this->name,
             'nisn' => $this->nisn,
             'class' => $this->class,

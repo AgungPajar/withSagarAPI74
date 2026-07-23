@@ -7,7 +7,6 @@ use App\Models\Attendance;
 use App\Models\User;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Vinkla\Hashids\Facades\Hashids;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -21,7 +20,7 @@ class ExportExcelController extends Controller
     {
         $date = $request->query('date');
         $hashId = $request->query('club_id');
-        $decoded = Hashids::decode($hashId);
+        $decoded = [$hashId];
         
         if (count($decoded) === 0) {
             return response()->json([
@@ -123,7 +122,7 @@ class ExportExcelController extends Controller
         $from = $request->query('from_date');
         $to = $request->query('to_date');
 
-        $decoded = Hashids::decode($clubIdHash);
+        $decoded = [$clubIdHash];
         if (count($decoded) === 0) {
             return response()->json(['message' => 'ID tidak valid'], 400);
         }

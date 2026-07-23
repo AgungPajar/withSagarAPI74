@@ -4,11 +4,14 @@ namespace App\Models;
 
 use App\Models\Jurusan;
 use App\Models\Student;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class RegistrationMember extends Model
 {
+    use HasUuids;
+
     protected $fillable = ['registrasi_agustusan_id', 'student_id', 'id_jurusan'];
 
     public function student()

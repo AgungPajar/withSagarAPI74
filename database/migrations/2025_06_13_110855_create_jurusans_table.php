@@ -9,9 +9,10 @@ class CreateJurusansTable extends Migration
     public function up(): void
     {
         Schema::create('jurusans', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('nama');
             $table->string('singkatan')->unique();
+            $table->string('slug')->unique()->nullable();
             $table->timestamps();
         });
     }

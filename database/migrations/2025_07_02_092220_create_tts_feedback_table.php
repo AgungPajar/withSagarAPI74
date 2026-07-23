@@ -14,7 +14,7 @@ class CreateTtsFeedbackTable extends Migration
     public function up()
     {
         Schema::create('tts_feedback', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->text('message');
             $table->timestamps();
