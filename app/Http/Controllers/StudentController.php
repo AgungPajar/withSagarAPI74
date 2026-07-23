@@ -48,7 +48,7 @@ class StudentController extends Controller
             return response()->json(['message' => 'Akses ditolak'], 403);
         }
 
-        $student = Student::with('jurusan', 'clubs')->find($id);
+        $student = Student::with('kelas.jurusan', 'clubs')->find($id);
         if (!$student) {
             return response()->json(['message' => 'Siswa tidak ditemukan'], 404);
         }
@@ -56,8 +56,8 @@ class StudentController extends Controller
         return response()->json([
             'name' => $student->name,
             'nisn' => $student->nisn,
-            'class' => $student->class,
-            'jurusan' => $student->jurusan->nama ?? null,
+            'class' => $student->kelas->nama ?? $student->class ?? null,
+            'jurusan' => $student->kelas->jurusan->nama ?? null,
             'phone' => $student->phone,
             'tanggal_lahir' => $student->tanggal_lahir,
             'alamat' => $student->alamat,
