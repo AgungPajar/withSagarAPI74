@@ -23,6 +23,11 @@ class Club extends Model
         return $this->logo_path ? asset('storage/' . $this->logo_path) : null;
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id');
