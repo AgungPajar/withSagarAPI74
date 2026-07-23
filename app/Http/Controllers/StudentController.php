@@ -186,7 +186,7 @@ class StudentController extends Controller
             return response()->json(['message' => 'Student not found'], 404);
         }
 
-        $clubs = Club::all()->map(function ($club) use ($studentId) {
+        $clubs = Club::with('schedules')->get()->map(function ($club) use ($studentId) {
             $club->hash_id = $club->id;
 
             $status = DB::table('club_student_requests')
