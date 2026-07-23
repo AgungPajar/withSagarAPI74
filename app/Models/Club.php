@@ -25,7 +25,7 @@ class Club extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->hasOneThrough(User::class, Student::class, 'id', 'id', 'student_id', 'user_id');
     }
 
     public function student()

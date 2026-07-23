@@ -19,6 +19,7 @@ use App\Http\Controllers\AktivityReportController;
 use App\Http\Controllers\LombaRegistrationController;
 
 Route::post('/register-siswa', [RegistrationController::class, 'register']);
+Route::post('/register-ketua', [RegistrationController::class, 'registerKetua']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/clubs', [ClubController::class, 'index']);
 Route::post('/ttsform', [TTSFeedbackController::class, 'store']);

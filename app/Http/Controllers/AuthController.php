@@ -46,11 +46,15 @@ class AuthController extends Controller
                 }
             }
         } else if ($user->role === 'club_pengurus') {
-            $club = Club::where('user_id', $user->id)->first();
-
-            if ($club) {
-                $clubId = $club->id;
-                $clubHashId = $clubId;
+            $student = Student::where('user_id', $user->id)->first();
+            if ($student) {
+                $club = Club::where('student_id', $student->id)->first();
+                if ($club) {
+                    $clubId = $club->id;
+                    $clubHashId = $clubId;
+                    $studentId = $student->id;
+                    $studentHashId = $studentId;
+                }
             }
         }
 
