@@ -26,6 +26,7 @@ Route::post('/ttsform', [TTSFeedbackController::class, 'store']);
 Route::get('/news/random', [NewsController::class, 'random']);
 Route::get('/news', [NewsController::class, 'index']);
 Route::get('/news/{news:slug}', [NewsController::class, 'show']);
+Route::get('/kelas/filter', [JurusanController::class, 'getKelas']);
 
 Route::prefix('admin')->middleware('auth:sanctum', )->group(function () {
     Route::get('/dashboard-stats', [AdminController::class, 'dashboardStats']);
