@@ -22,6 +22,9 @@ class ClubController extends Controller
             } else {
                 $club->hash_id = null;
             }
+            if ($club->logo_path && !str_starts_with($club->logo_path, 'logos/')) {
+                $club->logo_path = 'logos/' . $club->logo_path;
+            }
             return $club;
         });
         return response()->json($clubs);
@@ -77,7 +80,7 @@ class ClubController extends Controller
             'id' => $club->id,
             'name' => $club->name,
             'description' => $club->description,
-            'logo_path' => $club->logo_path,
+            'logo_path' => $club->logo_path ? (str_starts_with($club->logo_path, 'logos/') ? $club->logo_path : 'logos/' . $club->logo_path) : null,
             'group_link' => $club->group_link,
             'username' => $club->user->username ?? null,
         ]);
@@ -114,20 +117,16 @@ class ClubController extends Controller
             $club->group_link = $request->group_link ?? $club->group_link;
 
             if ($request->hasFile('logo')) {
-                if ($club->logo_path && Storage::disk('public')->exists($club->logo_path)) {
-                    Storage::disk('public')->delete($club->logo_path);
+                $oldFile = str_replace('logos/', '', $club->logo_path);
+                if ($club->logo_path && Storage::disk('public')->exists('logos/' . $oldFile)) {
+                    Storage::disk('public')->delete('logos/' . $oldFile);
                 }
 
                 $file = $request->file('logo');
                 $filename = uniqid() . '.' . $file->getClientOriginalExtension();
 
-                $destinationPath = public_path('storage/logos');
-                if (!file_exists($destinationPath)) {
-                    mkdir($destinationPath, 0775, true);
-                }
-
-                $file->move($destinationPath, $filename);
-                $club->logo_path = 'logos/' . $filename;
+                $file->storeAs('logos', $filename, 'public');
+                $club->logo_path = $filename;
             }
 
             $club->save();
@@ -164,6 +163,7 @@ class ClubController extends Controller
             'id' => $club->id,
             'name' => $club->name,
             'hash_id' => $club->id,
+            'logo_path' => $club->logo_path ? (str_starts_with($club->logo_path, 'logos/') ? $club->logo_path : 'logos/' . $club->logo_path) : null,
         ]);
     }
 }
