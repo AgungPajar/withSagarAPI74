@@ -96,7 +96,7 @@ class ProcessSiswaImport implements ShouldQueue
                 unlink($this->filePath);
             }
 
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->updateStatus('failed', 0, 0, $e->getMessage());
         }
     }

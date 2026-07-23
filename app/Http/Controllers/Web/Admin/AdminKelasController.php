@@ -23,6 +23,7 @@ class AdminKelasController extends Controller
             ->orderBy('jurusans.urutan', 'asc')
             ->orderBy('kelas.nama', 'asc')
             ->with('jurusan')
+            ->withCount('students')
             ->paginate(10);
         $jurusans = Jurusan::orderBy('urutan', 'asc')->get();
         return view('administrator.kelas.index', compact('kelas', 'jurusans'));
@@ -59,7 +60,7 @@ class AdminKelasController extends Controller
     {
         $kelas = $kela->load(['jurusan', 'students' => function($q) {
             $q->orderBy('name', 'asc');
-        }]);
+        }])->loadCount('students');
         return view('administrator.kelas.show', compact('kelas'));
     }
 
@@ -74,27 +75,67 @@ class AdminKelasController extends Controller
         $path = $file->storeAs('imports', $filename);
         
         $fullPath = storage_path('app/' . $path);
-        $importId = (string) Str::uuid();
         
-        // Initial state in cache
-        Cache::put('import_status_' . $importId, [
-            'status' => 'pending',
-            'processed' => 0,
-            'total' => 0,
-            'error' => null,
-            'updated_at' => now()->timestamp,
-        ], now()->addHours(2));
-        
-        // Store import ID in session to track it across pages
-        $activeImports = session()->get('active_imports', []);
-        $activeImports[] = $importId;
-        session()->put('active_imports', $activeImports);
+        try {
+            $spreadsheet = IOFactory::load($fullPath);
+            $worksheet = $spreadsheet->getActiveSheet();
+            $rows = $worksheet->toArray();
+            
+            $totalRows = count($rows) - 1; // subtract header
+            if ($totalRows <= 0) {
+                if (file_exists($fullPath)) {
+                    unlink($fullPath);
+                }
+                return redirect()->route('admin.kelas.show', $kela->id)->with('error', 'File excel kosong atau tidak valid.');
+            }
 
-        // Dispatch Job
-        ProcessSiswaImport::dispatch($fullPath, $kela->id, $importId);
+            $processedCount = 0;
+            foreach ($rows as $index => $row) {
+                if ($index == 0) continue; // Skip header
 
-        return redirect()->route('admin.kelas.show', $kela->id)
-            ->with('success', 'Import file is processing in the background. You can navigate to other pages.');
+                $nisn = $row[0] ?? null;
+                $name = $row[1] ?? null;
+
+                if ($nisn && $name) {
+                    $user = User::where('username', $nisn)->first();
+                    if (!$user) {
+                        $user = User::create([
+                            'username' => $nisn,
+                            'name' => $name,
+                            'role' => 'student',
+                            'password' => bcrypt('ossagar123'),
+                        ]);
+                    } else {
+                        $user->update([
+                            'name' => $name,
+                            'role' => 'student',
+                        ]);
+                    }
+
+                    Student::updateOrCreate(
+                        ['nisn' => $nisn],
+                        [
+                            'name' => $name,
+                            'kelas_id' => $kela->id,
+                            'user_id' => $user->id,
+                        ]
+                    );
+                    $processedCount++;
+                }
+            }
+
+            if (file_exists($fullPath)) {
+                unlink($fullPath);
+            }
+
+            return redirect()->route('admin.kelas.show', $kela->id)->with('success', "Import Siswa berhasil! {$processedCount} data diproses.");
+            
+        } catch (\Throwable $e) {
+            if (file_exists($fullPath)) {
+                unlink($fullPath);
+            }
+            return redirect()->route('admin.kelas.show', $kela->id)->with('error', 'Terjadi kesalahan saat import: ' . $e->getMessage());
+        }
     }
 
     public function importStatus(Request $request)
@@ -106,6 +147,14 @@ class AdminKelasController extends Controller
         foreach ($activeImports as $importId) {
             $status = Cache::get('import_status_' . $importId);
             if ($status) {
+                $updatedAt = $status['updated_at'] ?? 0;
+                // If job hasn't updated for 5 minutes, mark as failed (stuck)
+                if (in_array($status['status'], ['pending', 'processing']) && (time() - $updatedAt) > 300) {
+                    $status['status'] = 'failed';
+                    $status['error'] = 'Proses terhenti (Queue timeout / error).';
+                    Cache::put('import_status_' . $importId, $status, now()->addHours(1));
+                }
+
                 $statuses[$importId] = $status;
                 if (in_array($status['status'], ['completed', 'failed'])) {
                     $completedImports[] = $importId;

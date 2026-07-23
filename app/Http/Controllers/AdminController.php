@@ -17,7 +17,8 @@ class AdminController extends Controller
     public function show()
     {
         $user = Auth::user();
-        $club = Club::where('user_id', $user->id)->first();
+        $student = \App\Models\Student::where('user_id', $user->id)->first();
+        $club = $student ? Club::where('student_id', $student->id)->first() : null;
 
         return response()->json([
             'name' => $club ? $club->name : null,
@@ -48,7 +49,8 @@ class AdminController extends Controller
         }
         $user->save();
 
-        $club = Club::where('user_id', $user->id)->first();
+        $student = \App\Models\Student::where('user_id', $user->id)->first();
+        $club = $student ? Club::where('student_id', $student->id)->first() : null;
 
         if (!$club) {
             return response()->json([

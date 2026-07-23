@@ -31,7 +31,8 @@ class ProfileController extends Controller
 
         $user->save();
 
-        $club = Club::where('user_id', $user->id)->first();
+        $student = \App\Models\Student::where('user_id', $user->id)->first();
+        $club = $student ? Club::where('student_id', $student->id)->first() : null;
 
         if ($club) {
             $club->name = $request->name;

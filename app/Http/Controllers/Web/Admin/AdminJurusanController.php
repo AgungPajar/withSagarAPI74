@@ -21,7 +21,9 @@ class AdminJurusanController extends Controller
 
     public function show(Jurusan $jurusan)
     {
-        $jurusan->load('kelas');
+        $jurusan->load(['kelas' => function($query) {
+            $query->withCount('students');
+        }]);
         $jurusans = Jurusan::orderBy('urutan', 'asc')->get();
         return view('administrator.jurusan.show', compact('jurusan', 'jurusans'));
     }

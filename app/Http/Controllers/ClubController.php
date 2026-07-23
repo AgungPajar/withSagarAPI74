@@ -43,7 +43,6 @@ class ClubController extends Controller
         $club = Club::create([
             'name' => $validated['name'],
             'status' => $validated['status'] ?? null,
-            'user_id' => $user->id,
         ]);
         return response()->json([
             $club->load('user'),
@@ -62,7 +61,8 @@ class ClubController extends Controller
         $id = $decoded[0];
         $user = $request->user();
         if ($user && $user->role === 'club_pengurus') {
-            $clubCheck = Club::where('user_id', $user->id)->first();
+            $student = Student::where('user_id', $user->id)->first();
+            $clubCheck = $student ? Club::where('student_id', $student->id)->first() : null;
             if (!$clubCheck || $clubCheck->id != $id) {
                 return response()->json(['message' => 'Akses Ditolak'], 403);
             }
@@ -105,9 +105,8 @@ class ClubController extends Controller
 
         $user->save();
 
-        $club = $user->club;
-
-        $club = Club::where('user_id', $user->id)->first();
+        $student = Student::where('user_id', $user->id)->first();
+        $club = $student ? Club::where('student_id', $student->id)->first() : null;
 
         if ($club) {
             $club->name = $request->name ?? $club->name;
@@ -154,7 +153,8 @@ class ClubController extends Controller
 
     public function getByUser($userId)
     {
-        $club = Club::where('user_id', $userId)->first();
+        $student = Student::where('user_id', $userId)->first();
+        $club = $student ? Club::where('student_id', $student->id)->first() : null;
 
         if (!$club) {
             return response()->json(['message' => 'Club not found'], 404);

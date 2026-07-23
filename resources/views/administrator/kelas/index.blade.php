@@ -23,6 +23,7 @@
                             <th>Nama</th>
                             <th>Slug</th>
                             <th>Jurusan</th>
+                            <th>Total Siswa</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -33,6 +34,7 @@
                                 <td>{{ $k->nama }}</td>
                                 <td>{{ $k->slug }}</td>
                                 <td>{{ $k->jurusan ? $k->jurusan->nama : 'N/A' }}</td>
+                                <td>{{ $k->students_count }} Siswa</td>
                                 <td>
                                     <a href="{{ route('admin.kelas.show', $k->id) }}" class="btn btn-sm btn-info text-white">Detail</a>
                                     <button type="button" class="btn btn-sm btn-warning btn-edit" 
@@ -52,7 +54,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center">No Kelas found.</td>
+                                <td colspan="7" class="text-center">No Kelas found.</td>
                             </tr>
                         @endforelse
                     </tbody>

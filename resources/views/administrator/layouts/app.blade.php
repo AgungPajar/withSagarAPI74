@@ -92,7 +92,9 @@
                         let statusText = 'Processing...';
                         let progressBarClass = 'bg-primary';
                         
-                        if (statusData.status === 'completed') {
+                        if (statusData.status === 'pending') {
+                            statusText = 'Waiting in queue...';
+                        } else if (statusData.status === 'completed') {
                             statusText = 'Completed!';
                             progressBarClass = 'bg-success';
                             percentage = 100;

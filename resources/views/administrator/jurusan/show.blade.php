@@ -18,7 +18,8 @@
                 <p class="mb-1"><strong>Nama Jurusan:</strong> {{ $jurusan->nama }}</p>
                 <p class="mb-1"><strong>Singkatan:</strong> {{ $jurusan->singkatan }}</p>
                 <p class="mb-1"><strong>Urutan:</strong> {{ $jurusan->urutan }}</p>
-                <p class="mb-0"><strong>Total Kelas:</strong> {{ $jurusan->kelas->count() }}</p>
+                <p class="mb-1"><strong>Total Kelas:</strong> {{ $jurusan->kelas->count() }}</p>
+                <p class="mb-0"><strong>Total Siswa:</strong> {{ collect($jurusan->kelas)->sum('students_count') }}</p>
             </div>
         </div>
 
@@ -33,6 +34,7 @@
                             <th>No</th>
                             <th>Nama Kelas</th>
                             <th>Slug</th>
+                            <th>Total Siswa</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -42,6 +44,7 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $kelas->nama }}</td>
                                 <td>{{ $kelas->slug }}</td>
+                                <td>{{ $kelas->students_count }} Siswa</td>
                                 <td>
                                     <a href="{{ route('admin.kelas.show', $kelas->id) }}" class="btn btn-sm btn-info text-white">Lihat Kelas</a>
                                     <button type="button" class="btn btn-sm btn-warning btn-edit" 
@@ -61,7 +64,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center">Belum ada kelas untuk jurusan ini.</td>
+                                <td colspan="5" class="text-center">Belum ada kelas untuk jurusan ini.</td>
                             </tr>
                         @endforelse
                     </tbody>
