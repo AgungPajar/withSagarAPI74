@@ -11,9 +11,22 @@ use Illuminate\Support\Str;
 
 class AdminClubController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $clubs = Club::with('student')->orderBy('name', 'asc')->paginate(10);
+        $perPage = in_array((int) $request->perPage, [10, 25, 50]) ? (int) $request->perPage : 10;
+        $search = $request->search;
+
+        $clubs = Club::with('student')
+            ->orderBy('name', 'asc')
+            ->when($search, function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhereHas('student', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%");
+                  });
+            })
+            ->paginate($perPage)
+            ->withQueryString();
+            
         return view('administrator.ekskul.index', compact('clubs'));
     }
 

@@ -8,9 +8,19 @@ use Illuminate\Http\Request;
 
 class AdminJurusanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $jurusans = Jurusan::orderBy('urutan', 'asc')->paginate(10);
+        $perPage = in_array((int) $request->perPage, [10, 25, 50]) ? (int) $request->perPage : 10;
+        $search = $request->search;
+
+        $jurusans = Jurusan::orderBy('urutan', 'asc')
+            ->when($search, function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('singkatan', 'like', "%{$search}%");
+            })
+            ->paginate($perPage)
+            ->withQueryString();
+            
         return view('administrator.jurusan.index', compact('jurusans'));
     }
 

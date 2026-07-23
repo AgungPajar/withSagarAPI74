@@ -16,15 +16,22 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminKelasController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = in_array((int) $request->perPage, [10, 25, 50]) ? (int) $request->perPage : 10;
+        $search = $request->search;
+        $jurusanFilter = $request->jurusan_id;
+
         $kelas = Kelas::select('kelas.*')
             ->join('jurusans', 'kelas.jurusan_id', '=', 'jurusans.id')
             ->orderBy('jurusans.urutan', 'asc')
             ->orderBy('kelas.nama', 'asc')
             ->with('jurusan')
             ->withCount('students')
-            ->paginate(10);
+            ->when($search, fn($q) => $q->where('kelas.nama', 'like', "%{$search}%"))
+            ->when($jurusanFilter, fn($q) => $q->where('kelas.jurusan_id', $jurusanFilter))
+            ->paginate($perPage)
+            ->withQueryString();
         $jurusans = Jurusan::orderBy('urutan', 'asc')->get();
         return view('administrator.kelas.index', compact('kelas', 'jurusans'));
     }

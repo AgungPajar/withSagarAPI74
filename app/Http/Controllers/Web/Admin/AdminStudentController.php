@@ -10,10 +10,32 @@ use Illuminate\Http\Request;
 
 class AdminStudentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $students = Student::with('kelas.jurusan')->orderBy('created_at', 'desc')->paginate(10);
-        return view('administrator.siswa.index', compact('students'));
+        $perPage    = in_array((int) $request->perPage, [10, 25, 50]) ? (int) $request->perPage : 10;
+        $search     = $request->search;
+        $kelasFilter   = $request->kelas_id;
+        $jurusanFilter = $request->jurusan_id;
+
+        $students = Student::with('kelas.jurusan')
+            ->orderBy('created_at', 'desc')
+            ->when($search, function($q) use ($search) {
+                $q->where(function($q2) use ($search) {
+                    $q2->where('name', 'like', "%{$search}%")
+                       ->orWhere('nisn', 'like', "%{$search}%");
+                });
+            })
+            ->when($kelasFilter, fn($q) => $q->where('kelas_id', $kelasFilter))
+            ->when($jurusanFilter, function($q) use ($jurusanFilter) {
+                $q->whereHas('kelas', fn($q2) => $q2->where('jurusan_id', $jurusanFilter));
+            })
+            ->paginate($perPage)
+            ->withQueryString();
+
+        $kelasList  = Kelas::with('jurusan')->orderBy('nama')->get();
+        $jurusans   = \App\Models\Jurusan::orderBy('urutan')->get();
+
+        return view('administrator.siswa.index', compact('students', 'kelasList', 'jurusans'));
     }
 
     public function create()
