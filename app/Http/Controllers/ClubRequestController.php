@@ -41,6 +41,7 @@ class ClubRequestController extends Controller
         }
 
         DB::table('club_student_requests')->insert([
+            'id' => \Illuminate\Support\Str::uuid()->toString(),
             'club_id' => $clubId,
             'student_id' => $user->student_id,
             'status' => 'pending',
@@ -66,10 +67,25 @@ class ClubRequestController extends Controller
         if (!$student)
             return response()->json(['message' => 'Student not found'], 404);
 
-        DB::table('club_student_requests')->updateOrInsert(
-            ['club_id' => $clubId, 'student_id' => $student->id],
-            ['status' => 'pending', 'updated_at' => now()]
-        );
+        $existingRequest = DB::table('club_student_requests')
+            ->where('club_id', $clubId)
+            ->where('student_id', $student->id)
+            ->first();
+
+        if ($existingRequest) {
+            DB::table('club_student_requests')
+                ->where('id', $existingRequest->id)
+                ->update(['status' => 'pending', 'updated_at' => now()]);
+        } else {
+            DB::table('club_student_requests')->insert([
+                'id' => \Illuminate\Support\Str::uuid()->toString(),
+                'club_id' => $clubId,
+                'student_id' => $student->id,
+                'status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
 
         return response()->json(['message' => 'Permintaan bergabung telah dikirim. Menunggu konfirmasi.']);
     }
@@ -255,6 +271,7 @@ class ClubRequestController extends Controller
             ]);
 
             DB::table('club_student_requests')->insert([
+                'id' => \Illuminate\Support\Str::uuid()->toString(),
                 'club_id' => $clubId,
                 'student_id' => $studentId,
                 'status' => 'accepted',
