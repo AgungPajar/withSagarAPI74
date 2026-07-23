@@ -49,8 +49,10 @@ class AdminClubController extends Controller
         $data = $request->only('name', 'description', 'group_link', 'student_id');
 
         if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('clubs', 'public');
-            $data['logo_path'] = $path;
+            $file = $request->file('logo');
+            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('logos', $filename, 'public');
+            $data['logo_path'] = $filename;
         }
 
         Club::create($data);
@@ -78,10 +80,13 @@ class AdminClubController extends Controller
 
         if ($request->hasFile('logo')) {
             if ($ekskul->logo_path) {
-                Storage::disk('public')->delete($ekskul->logo_path);
+                $oldFile = str_replace('logos/', '', $ekskul->logo_path);
+                Storage::disk('public')->delete('logos/' . $oldFile);
             }
-            $path = $request->file('logo')->store('clubs', 'public');
-            $data['logo_path'] = $path;
+            $file = $request->file('logo');
+            $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('logos', $filename, 'public');
+            $data['logo_path'] = $filename;
         }
 
         $ekskul->update($data);
@@ -92,7 +97,8 @@ class AdminClubController extends Controller
     public function destroy(Club $ekskul)
     {
         if ($ekskul->logo_path) {
-            Storage::disk('public')->delete($ekskul->logo_path);
+            $oldFile = str_replace('logos/', '', $ekskul->logo_path);
+            Storage::disk('public')->delete('logos/' . $oldFile);
         }
         $ekskul->delete();
 
