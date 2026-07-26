@@ -17,7 +17,7 @@ class AdminClubController extends Controller
         $search = $request->search;
 
         $clubs = Club::with('student')
-            ->orderBy('name', 'asc')
+            ->orderBy('urutan', 'asc')
             ->when($search, function($q) use ($search) {
                 $q->where('name', 'ilike', "%{$search}%")
                   ->orWhereHas('student', function($q2) use ($search) {
@@ -43,10 +43,11 @@ class AdminClubController extends Controller
             'description' => 'nullable|string',
             'group_link' => 'nullable|url',
             'student_id' => 'nullable|exists:students,id',
+            'urutan' => 'nullable|integer',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $data = $request->only('name', 'description', 'group_link', 'student_id');
+        $data = $request->only('name', 'description', 'group_link', 'student_id', 'urutan');
 
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
@@ -73,10 +74,11 @@ class AdminClubController extends Controller
             'description' => 'nullable|string',
             'group_link' => 'nullable|url',
             'student_id' => 'nullable|exists:students,id',
+            'urutan' => 'nullable|integer',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $data = $request->only('name', 'description', 'group_link', 'student_id');
+        $data = $request->only('name', 'description', 'group_link', 'student_id', 'urutan');
 
         if ($request->hasFile('logo')) {
             if ($ekskul->logo_path) {

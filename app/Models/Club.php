@@ -11,7 +11,7 @@ class Club extends Model
     use HasFactory, HasUuids;
 
     protected $table = 'clubs';
-    protected $fillable = ['student_id', 'name', 'description', 'logo_path', 'group_link'];
+    protected $fillable = ['student_id', 'name', 'description', 'logo_path', 'group_link', 'urutan'];
 
     public function students()
     {
@@ -20,7 +20,9 @@ class Club extends Model
 
     public function getLogoUrlAttribute()
     {
-        return $this->logo_path ? asset('storage/' . $this->logo_path) : null;
+        if (!$this->logo_path) return null;
+        $path = str_starts_with($this->logo_path, 'logos/') ? $this->logo_path : 'logos/' . $this->logo_path;
+        return asset('storage/' . $path);
     }
 
     public function user()

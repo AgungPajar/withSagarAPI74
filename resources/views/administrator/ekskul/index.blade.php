@@ -68,6 +68,7 @@
                     <tr>
                         <th>#</th>
                         <th>Logo</th>
+                        <th>Urutan</th>
                         <th>Nama Ekskul</th>
                         <th>Admin (Siswa)</th>
                         <th>Group Link</th>
@@ -88,6 +89,9 @@
                                         {{ strtoupper(substr($ekskul->name, 0, 1)) }}
                                     </div>
                                 @endif
+                            </td>
+                            <td style="color: #64748b; font-size: 14px;">
+                                {{ $ekskul->urutan ?? 0 }}
                             </td>
                             <td style="font-weight: 600;">
                                 @if($keyword && stripos($ekskul->name, $keyword) !== false)

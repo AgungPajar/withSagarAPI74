@@ -27,6 +27,10 @@
                         <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" required>
                     </div>
                     <div class="mb-3">
+                        <label for="urutan" class="form-label">Urutan</label>
+                        <input type="number" class="form-control" id="urutan" name="urutan" value="{{ old('urutan', 0) }}">
+                    </div>
+                    <div class="mb-3">
                         <label for="student_id" class="form-label">Admin Klub (Pilih Siswa)</label>
                         <select class="form-select" id="student_id" name="student_id">
                             <option value="">-- Tidak Ada Admin --</option>
