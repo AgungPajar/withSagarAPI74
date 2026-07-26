@@ -115,13 +115,13 @@ class AdminStudentController extends Controller
 
         $siswa->update($data);
 
-        return redirect()->route('admin.siswa.index')->with('success', 'Siswa updated successfully.');
+        return redirect()->back()->with('success', 'Siswa updated successfully.');
     }
 
     public function destroy(Student $siswa)
     {
         $siswa->delete();
-        return redirect()->route('admin.siswa.index')->with('success', 'Siswa deleted successfully.');
+        return redirect()->back()->with('success', 'Siswa deleted successfully.');
     }
 
     public function resetPassword(Student $siswa)
