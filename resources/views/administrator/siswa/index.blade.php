@@ -116,7 +116,7 @@
                         @php $keyword = request('search'); @endphp
                         <tr>
                             <td style="color: #64748b;">{{ $students->firstItem() + $index }}</td>
-                            <td style="font-weight: 500;">
+                            <td style="font-weight: 500; {{ strlen($s->nisn) < 10 ? 'color: #ef4444;' : '' }}">
                                 @if($keyword && stripos($s->name, $keyword) !== false)
                                     {!! preg_replace(
                                         '/(' . preg_quote($keyword, '/') . ')/i',
@@ -139,6 +139,9 @@
                                         {{ $s->nisn }}
                                     @endif
                                 </code>
+                                <div style="font-size: 10px; margin-top: 2px; {{ strlen($s->nisn) < 10 ? 'color: #ef4444;' : 'color: #64748b;' }}">
+                                    {{ strlen($s->nisn) }} digit
+                                </div>
                             </td>
                             <td>
                                 @if($s->kelas)
@@ -160,9 +163,9 @@
                                             <i class="bi bi-key"></i>
                                         </button>
                                     </form>
-                                    <a href="{{ route('admin.siswa.edit', $s->id) }}" class="btn btn-sm btn-warning" title="Edit">
+                                    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ $s->id }}" title="Edit">
                                         <i class="bi bi-pencil"></i>
-                                    </a>
+                                    </button>
                                     <form action="{{ route('admin.siswa.destroy', $s->id) }}" method="POST" class="d-inline delete-form">
                                         @csrf
                                         @method('DELETE')
@@ -170,6 +173,47 @@
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
+                                </div>
+
+                                <!-- Edit Modal -->
+                                <div class="modal fade" id="editModal{{ $s->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $s->id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content" style="background: #1e2236; color: #e2e8f0; border: 1px solid #334155;">
+                                            <div class="modal-header" style="border-bottom: 1px solid #334155;">
+                                                <h5 class="modal-title" id="editModalLabel{{ $s->id }}">Edit Siswa</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form action="{{ route('admin.siswa.update', $s->id) }}" method="POST">
+                                                @csrf
+                                                @method('PUT')
+                                                <div class="modal-body text-start">
+                                                    <div class="mb-3">
+                                                        <label for="name{{ $s->id }}" class="form-label" style="color: #94a3b8; font-size: 13px;">Nama</label>
+                                                        <input type="text" class="form-control" style="background: #0f172a; border: 1px solid #334155; color: #e2e8f0;" id="name{{ $s->id }}" name="name" value="{{ old('name', $s->name) }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="nisn{{ $s->id }}" class="form-label" style="color: #94a3b8; font-size: 13px;">NISN</label>
+                                                        <input type="text" class="form-control" style="background: #0f172a; border: 1px solid #334155; color: #e2e8f0;" id="nisn{{ $s->id }}" name="nisn" value="{{ old('nisn', $s->nisn) }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="kelas_id{{ $s->id }}" class="form-label" style="color: #94a3b8; font-size: 13px;">Kelas</label>
+                                                        <select class="form-select" style="background: #0f172a; border: 1px solid #334155; color: #e2e8f0;" id="kelas_id{{ $s->id }}" name="kelas_id" required>
+                                                            <option value="">Select Kelas...</option>
+                                                            @foreach($kelasList as $kelas)
+                                                                <option value="{{ $kelas->id }}" {{ old('kelas_id', $s->kelas_id) == $kelas->id ? 'selected' : '' }}>
+                                                                    {{ $kelas->nama }} ({{ $kelas->jurusan ? $kelas->jurusan->nama : '-' }})
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer" style="border-top: 1px solid #334155;">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                    <button type="submit" class="btn btn-primary">Update</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
                         </tr>

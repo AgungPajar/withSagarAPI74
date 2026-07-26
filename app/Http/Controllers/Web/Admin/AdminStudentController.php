@@ -18,11 +18,16 @@ class AdminStudentController extends Controller
         $jurusanFilter = $request->jurusan_id;
 
         $students = Student::with('kelas.jurusan')
-            ->orderBy('created_at', 'desc')
+            ->select('students.*')
+            ->leftJoin('kelas', 'students.kelas_id', '=', 'kelas.id')
+            ->leftJoin('jurusans', 'kelas.jurusan_id', '=', 'jurusans.id')
+            ->orderBy('jurusans.urutan', 'asc')
+            ->orderBy('kelas.nama', 'asc')
+            ->orderBy('students.name', 'asc')
             ->when($search, function($q) use ($search) {
                 $q->where(function($q2) use ($search) {
-                    $q2->where('name', 'ilike', "%{$search}%")
-                       ->orWhere('nisn', 'ilike', "%{$search}%")
+                    $q2->where('students.name', 'ilike', "%{$search}%")
+                       ->orWhere('students.nisn', 'ilike', "%{$search}%")
                        ->orWhereHas('user', function($q3) use ($search) {
                            $q3->where('username', 'ilike', "%{$search}%");
                        });
@@ -43,7 +48,7 @@ class AdminStudentController extends Controller
 
     public function create()
     {
-        $kelasList = Kelas::with('jurusan')->orderBy('name', 'asc')->get();
+        $kelasList = Kelas::with('jurusan')->orderBy('nama', 'asc')->get();
         return view('administrator.siswa.create', compact('kelasList'));
     }
 
@@ -76,7 +81,7 @@ class AdminStudentController extends Controller
 
     public function edit(Student $siswa)
     {
-        $kelasList = Kelas::with('jurusan')->orderBy('name', 'asc')->get();
+        $kelasList = Kelas::with('jurusan')->orderBy('nama', 'asc')->get();
         return view('administrator.siswa.edit', compact('siswa', 'kelasList'));
     }
 
