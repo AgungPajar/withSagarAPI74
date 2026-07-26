@@ -28,7 +28,7 @@ class AdminKelasController extends Controller
             ->orderBy('kelas.nama', 'asc')
             ->with('jurusan')
             ->withCount('students')
-            ->when($search, fn($q) => $q->where('kelas.nama', 'like', "%{$search}%"))
+            ->when($search, fn($q) => $q->where('kelas.nama', 'ilike', "%{$search}%"))
             ->when($jurusanFilter, fn($q) => $q->where('kelas.jurusan_id', $jurusanFilter))
             ->paginate($perPage)
             ->withQueryString();

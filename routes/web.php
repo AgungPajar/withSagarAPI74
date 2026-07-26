@@ -52,6 +52,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('kelas/{kela}/import', [AdminKelasController::class, 'importSiswa'])->name('admin.kelas.import');
         Route::resource('kelas', AdminKelasController::class, ['as' => 'admin']);
         
+        Route::post('siswa/{siswa}/reset-password', [AdminStudentController::class, 'resetPassword'])->name('admin.siswa.reset-password');
         Route::resource('siswa', AdminStudentController::class, ['as' => 'admin']);
         
         Route::resource('ekskul', AdminClubController::class, ['as' => 'admin']);

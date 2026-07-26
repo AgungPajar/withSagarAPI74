@@ -19,9 +19,9 @@ class AdminClubController extends Controller
         $clubs = Club::with('student')
             ->orderBy('name', 'asc')
             ->when($search, function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
+                $q->where('name', 'ilike', "%{$search}%")
                   ->orWhereHas('student', function($q2) use ($search) {
-                      $q2->where('name', 'like', "%{$search}%");
+                      $q2->where('name', 'ilike', "%{$search}%");
                   });
             })
             ->paginate($perPage)

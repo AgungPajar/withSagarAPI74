@@ -154,6 +154,12 @@
                             </td>
                             <td>
                                 <div class="d-flex gap-2">
+                                    <form action="{{ route('admin.siswa.reset-password', $s->id) }}" method="POST" class="d-inline reset-form">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-info text-white" title="Reset Password">
+                                            <i class="bi bi-key"></i>
+                                        </button>
+                                    </form>
                                     <a href="{{ route('admin.siswa.edit', $s->id) }}" class="btn btn-sm btn-warning" title="Edit">
                                         <i class="bi bi-pencil"></i>
                                     </a>
@@ -210,6 +216,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 confirmButtonText: 'Ya, Hapus!',
                 cancelButtonText: 'Batal',
                 confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#374151',
+                background: '#131624',
+                color: '#e2e8f0',
+            }).then(result => { if (result.isConfirmed) form.submit(); });
+        });
+    });
+
+    // Reset confirm
+    document.querySelectorAll('.reset-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Reset Akun?',
+                text: 'Password siswa ini akan direset menjadi default (ossagar123).',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Reset!',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#0dcaf0',
                 cancelButtonColor: '#374151',
                 background: '#131624',
                 color: '#e2e8f0',

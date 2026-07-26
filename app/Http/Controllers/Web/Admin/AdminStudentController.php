@@ -21,8 +21,11 @@ class AdminStudentController extends Controller
             ->orderBy('created_at', 'desc')
             ->when($search, function($q) use ($search) {
                 $q->where(function($q2) use ($search) {
-                    $q2->where('name', 'like', "%{$search}%")
-                       ->orWhere('nisn', 'like', "%{$search}%");
+                    $q2->where('name', 'ilike', "%{$search}%")
+                       ->orWhere('nisn', 'ilike', "%{$search}%")
+                       ->orWhereHas('user', function($q3) use ($search) {
+                           $q3->where('username', 'ilike', "%{$search}%");
+                       });
                 });
             })
             ->when($kelasFilter, fn($q) => $q->where('kelas_id', $kelasFilter))
@@ -114,5 +117,19 @@ class AdminStudentController extends Controller
     {
         $siswa->delete();
         return redirect()->route('admin.siswa.index')->with('success', 'Siswa deleted successfully.');
+    }
+
+    public function resetPassword(Student $siswa)
+    {
+        if ($siswa->user_id) {
+            $user = User::find($siswa->user_id);
+            if ($user) {
+                $user->update([
+                    'password' => bcrypt('ossagar123')
+                ]);
+                return redirect()->back()->with('success', 'Password akun ' . $siswa->name . ' berhasil direset menjadi: ossagar123');
+            }
+        }
+        return redirect()->back()->with('error', 'Akun user tidak ditemukan untuk siswa ini.');
     }
 }

@@ -15,8 +15,8 @@ class AdminJurusanController extends Controller
 
         $jurusans = Jurusan::orderBy('urutan', 'asc')
             ->when($search, function($q) use ($search) {
-                $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('singkatan', 'like', "%{$search}%");
+                $q->where('nama', 'ilike', "%{$search}%")
+                  ->orWhere('singkatan', 'ilike', "%{$search}%");
             })
             ->paginate($perPage)
             ->withQueryString();
