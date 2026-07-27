@@ -22,7 +22,8 @@ class AdminStudentController extends Controller
             ->leftJoin('kelas', 'students.kelas_id', '=', 'kelas.id')
             ->leftJoin('jurusans', 'kelas.jurusan_id', '=', 'jurusans.id')
             ->orderBy('jurusans.urutan', 'asc')
-            ->orderBy('kelas.nama', 'asc')
+            ->orderBy('kelas.tingkatan', 'asc')
+            ->orderBy('kelas.rombel', 'asc')
             ->orderBy('students.name', 'asc')
             ->when($search, function($q) use ($search) {
                 $q->where(function($q2) use ($search) {
@@ -40,7 +41,13 @@ class AdminStudentController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-        $kelasList  = Kelas::with('jurusan')->orderBy('nama')->get();
+        $kelasList = Kelas::select('kelas.*')
+            ->join('jurusans', 'kelas.jurusan_id', '=', 'jurusans.id')
+            ->orderBy('jurusans.urutan', 'asc')
+            ->orderBy('kelas.tingkatan', 'asc')
+            ->orderBy('kelas.rombel', 'asc')
+            ->with('jurusan')
+            ->get();
         $jurusans   = \App\Models\Jurusan::orderBy('urutan')->get();
 
         return view('administrator.siswa.index', compact('students', 'kelasList', 'jurusans'));
@@ -81,7 +88,13 @@ class AdminStudentController extends Controller
 
     public function edit(Student $siswa)
     {
-        $kelasList = Kelas::with('jurusan')->orderBy('nama', 'asc')->get();
+        $kelasList = Kelas::select('kelas.*')
+            ->join('jurusans', 'kelas.jurusan_id', '=', 'jurusans.id')
+            ->orderBy('jurusans.urutan', 'asc')
+            ->orderBy('kelas.tingkatan', 'asc')
+            ->orderBy('kelas.rombel', 'asc')
+            ->with('jurusan')
+            ->get();
         return view('administrator.siswa.edit', compact('siswa', 'kelasList'));
     }
 
