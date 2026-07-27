@@ -105,6 +105,20 @@ class AdminKelasController extends Controller
                 $name = $row[1] ?? null;
 
                 if ($nisn && $name) {
+                    $nisn = trim((string)$nisn);
+                    
+                    if (str_starts_with($nisn, "'")) {
+                        $nisn = substr($nisn, 1);
+                    }
+
+                    if (strlen($nisn) === 9) {
+                        $nisn = '0' . $nisn;
+                    }
+
+                    if (Student::where('nisn', $nisn)->exists()) {
+                        continue;
+                    }
+
                     $user = User::where('username', $nisn)->first();
                     if (!$user) {
                         $user = User::create([
