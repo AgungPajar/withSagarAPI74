@@ -56,6 +56,8 @@ Route::group(['prefix' => 'admin'], function () {
         Route::resource('siswa', AdminStudentController::class, ['as' => 'admin']);
         
         Route::post('ekskul/reorder', [AdminClubController::class, 'reorder'])->name('admin.ekskul.reorder');
+        Route::post('ekskul/{ekskul}/bulk-delete-members', [AdminClubController::class, 'bulkDeleteMembers'])->name('admin.ekskul.bulk-delete-members');
+        Route::post('ekskul/{ekskul}/bulk-delete-requests', [AdminClubController::class, 'bulkDeleteRequests'])->name('admin.ekskul.bulk-delete-requests');
         Route::resource('ekskul', AdminClubController::class, ['as' => 'admin']);
     });
 });

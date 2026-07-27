@@ -62,6 +62,21 @@ class AdminClubController extends Controller
         return redirect()->route('admin.ekskul.index')->with('success', 'Ekskul created successfully.');
     }
 
+    public function show(Club $ekskul)
+    {
+        $ekskul->load(['student', 'students.kelas']);
+        
+        $pendaftar = \Illuminate\Support\Facades\DB::table('club_student_requests')
+            ->join('students', 'club_student_requests.student_id', '=', 'students.id')
+            ->leftJoin('kelas', 'students.kelas_id', '=', 'kelas.id')
+            ->where('club_student_requests.club_id', $ekskul->id)
+            ->where('club_student_requests.status', 'pending')
+            ->select('students.*', 'kelas.nama as kelas_nama', 'club_student_requests.created_at as request_date')
+            ->get();
+
+        return view('administrator.ekskul.show', compact('ekskul', 'pendaftar'));
+    }
+
     public function edit(Club $ekskul)
     {
         $students = Student::orderBy('name', 'asc')->get();
@@ -120,5 +135,41 @@ class AdminClubController extends Controller
         $ekskul->delete();
 
         return redirect()->back()->with('success', 'Ekskul deleted successfully.');
+    }
+
+    public function bulkDeleteMembers(Request $request, Club $ekskul)
+    {
+        $request->validate([
+            'student_ids' => 'required|array',
+            'student_ids.*' => 'exists:students,id'
+        ]);
+
+        \Illuminate\Support\Facades\DB::table('club_student')
+            ->where('club_id', $ekskul->id)
+            ->whereIn('student_id', $request->student_ids)
+            ->delete();
+
+        \Illuminate\Support\Facades\DB::table('club_student_requests')
+            ->where('club_id', $ekskul->id)
+            ->whereIn('student_id', $request->student_ids)
+            ->whereIn('status', ['accepted', 'pending'])
+            ->update(['status' => 'rejected', 'updated_at' => now()]);
+
+        return redirect()->back()->with('success', count($request->student_ids) . ' anggota berhasil dihapus.');
+    }
+
+    public function bulkDeleteRequests(Request $request, Club $ekskul)
+    {
+        $request->validate([
+            'request_ids' => 'required|array',
+            'request_ids.*' => 'exists:club_student_requests,id'
+        ]);
+
+        \Illuminate\Support\Facades\DB::table('club_student_requests')
+            ->where('club_id', $ekskul->id)
+            ->whereIn('id', $request->request_ids)
+            ->delete();
+
+        return redirect()->back()->with('success', count($request->request_ids) . ' pendaftar berhasil dihapus.');
     }
 }

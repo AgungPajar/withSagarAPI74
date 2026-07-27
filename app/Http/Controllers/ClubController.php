@@ -16,7 +16,11 @@ class ClubController extends Controller
 {
     public function index()
     {
-        $clubs = Club::with(['user', 'schedules'])->get()->map(function ($club) {
+        $clubs = Club::with(['user', 'schedules'])
+            ->orderBy('urutan', 'asc')
+            ->orderBy('name', 'asc')
+            ->get()
+            ->map(function ($club) {
             if (is_int($club->id)) {
                 $club->hash_id = $club->id;
             } else {

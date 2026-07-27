@@ -134,6 +134,9 @@
                             </td>
                             <td>
                                 <div class="d-flex gap-2">
+                                    <a href="{{ route('admin.ekskul.show', $ekskul->id) }}" class="btn btn-sm btn-info text-white" title="Lihat Detail">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                     <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ $ekskul->id }}" title="Edit">
                                         <i class="bi bi-pencil"></i>
                                     </button>
