@@ -106,8 +106,9 @@
                         <th>#</th>
                         <th>Nama</th>
                         <th>NISN</th>
+                        <th>Username</th>
                         <th>Kelas</th>
-                        <th>Jurusan</th>
+                        <th>Ekskul</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -116,7 +117,7 @@
                         @php $keyword = request('search'); @endphp
                         <tr>
                             <td style="color: #64748b;">{{ $students->firstItem() + $index }}</td>
-                            <td style="font-weight: 500; {{ strlen($s->nisn) < 10 ? 'color: #ef4444;' : '' }}">
+                            <td style="font-weight: 500; {{ $s->clubs->isEmpty() ? 'color: #facc15;' : (strlen($s->nisn) < 10 ? 'color: #ef4444;' : '') }}">
                                 @if($keyword && stripos($s->name, $keyword) !== false)
                                     {!! preg_replace(
                                         '/(' . preg_quote($keyword, '/') . ')/i',
@@ -144,6 +145,19 @@
                                 </div>
                             </td>
                             <td>
+                                <code style="font-size: 12px; color: #10b981;">
+                                    @if($keyword && $s->user && stripos($s->user->username, $keyword) !== false)
+                                        {!! preg_replace(
+                                            '/(' . preg_quote($keyword, '/') . ')/i',
+                                            '<mark style="background: rgba(16,185,129,0.3); color: #a7f3d0; border-radius: 3px; padding: 0 2px;">$1</mark>',
+                                            e($s->user->username)
+                                        ) !!}
+                                    @else
+                                        {{ $s->user ? $s->user->username : '-' }}
+                                    @endif
+                                </code>
+                            </td>
+                            <td>
                                 @if($s->kelas)
                                     <span class="badge" style="background: rgba(34,211,238,0.12); color: #22d3ee; border-radius: 6px; font-size: 12px;">
                                         {{ $s->kelas->nama }}
@@ -152,8 +166,18 @@
                                     <span style="color: #64748b; font-size: 12px;">-</span>
                                 @endif
                             </td>
-                            <td style="color: #94a3b8; font-size: 13px;">
-                                {{ ($s->kelas && $s->kelas->jurusan) ? $s->kelas->jurusan->nama : '-' }}
+                            <td>
+                                @if($s->clubs->isNotEmpty())
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach($s->clubs as $club)
+                                            <span class="badge" style="background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.2); font-size: 11px;">
+                                                {{ $club->name }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <span style="color: #64748b; font-size: 12px; font-style: italic;">-</span>
+                                @endif
                             </td>
                             <td>
                                 <div class="d-flex gap-2">
