@@ -55,6 +55,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('siswa/{siswa}/reset-password', [AdminStudentController::class, 'resetPassword'])->name('admin.siswa.reset-password');
         Route::resource('siswa', AdminStudentController::class, ['as' => 'admin']);
         
+        Route::post('ekskul/reorder', [AdminClubController::class, 'reorder'])->name('admin.ekskul.reorder');
         Route::resource('ekskul', AdminClubController::class, ['as' => 'admin']);
     });
 });

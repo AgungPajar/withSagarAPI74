@@ -12,6 +12,8 @@
             Total {{ $clubs->total() }} ekskul
             @if(request('search'))
                 <span style="color: #818cf8;"> — hasil pencarian</span>
+            @else
+                &mdash; drag baris untuk ubah urutan
             @endif
         </p>
     </div>
@@ -66,6 +68,7 @@
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
+                        <th style="width: 40px;"></th>
                         <th>#</th>
                         <th>Logo</th>
                         <th>Urutan</th>
@@ -75,10 +78,15 @@
                         <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="{{ request('search') ? '' : 'sortable-ekskul' }}">
                     @forelse($clubs as $index => $ekskul)
                         @php $keyword = request('search'); @endphp
-                        <tr>
+                        <tr data-id="{{ $ekskul->id }}">
+                            <td>
+                                @if(!request('search'))
+                                    <span class="handle" style="cursor: grab; color: #64748b; font-size: 1.1rem;">⠿</span>
+                                @endif
+                            </td>
                             <td style="color: #64748b;">{{ $clubs->firstItem() + $index }}</td>
                             <td>
                                 @if($ekskul->logo_url)
@@ -91,7 +99,7 @@
                                 @endif
                             </td>
                             <td style="color: #64748b; font-size: 14px;">
-                                {{ $ekskul->urutan ?? 0 }}
+                                <span class="badge" style="background: rgba(100,108,255,0.15); color: #818cf8; border-radius: 6px;">{{ $ekskul->urutan ?? 0 }}</span>
                             </td>
                             <td style="font-weight: 600;">
                                 @if($keyword && stripos($ekskul->name, $keyword) !== false)
@@ -139,7 +147,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5" style="color: #64748b;">
+                            <td colspan="7" class="text-center py-5" style="color: #64748b;">
                                 <i class="bi bi-search fs-1 d-block mb-3 opacity-25"></i>
                                 @if(request('search'))
                                     <div style="font-size: 15px; font-weight: 600; color: #94a3b8;">Tidak ada ekskul yang cocok</div>
@@ -161,6 +169,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // Search clear
@@ -169,6 +178,68 @@ document.addEventListener('DOMContentLoaded', function () {
         clearBtn.addEventListener('click', function() {
             document.getElementById('searchInput').value = '';
             document.getElementById('searchForm').submit();
+        });
+    }
+
+    // Sortable JS - only active if not searching
+    var el = document.getElementById('sortable-ekskul');
+    if (el) {
+        Sortable.create(el, {
+            handle: '.handle',
+            animation: 150,
+            onEnd: function (evt) {
+                var order = [];
+                el.querySelectorAll('tr').forEach(function(row) {
+                    var id = row.getAttribute('data-id');
+                    if (id) order.push(id);
+                });
+
+                Swal.fire({
+                    title: 'Mohon tunggu',
+                    text: 'Sedang menyimpan urutan baru...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                fetch('{{ route('admin.ekskul.reorder') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ order: order })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: data.message || 'Urutan berhasil diperbarui',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: 'Gagal memperbarui urutan.'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Terjadi kesalahan sistem.'
+                    });
+                });
+            }
         });
     }
 

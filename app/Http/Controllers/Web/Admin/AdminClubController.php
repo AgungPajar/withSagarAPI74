@@ -96,6 +96,20 @@ class AdminClubController extends Controller
         return redirect()->route('admin.ekskul.index')->with('success', 'Ekskul updated successfully.');
     }
 
+    public function reorder(Request $request)
+    {
+        $request->validate([
+            'order' => 'required|array',
+            'order.*' => 'required|exists:clubs,id',
+        ]);
+
+        foreach ($request->order as $index => $id) {
+            Club::where('id', $id)->update(['urutan' => $index + 1]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Urutan ekskul berhasil diperbarui.']);
+    }
+
     public function destroy(Club $ekskul)
     {
         if ($ekskul->logo_path) {
