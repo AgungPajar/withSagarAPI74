@@ -134,14 +134,74 @@
                             </td>
                             <td>
                                 <div class="d-flex gap-2">
-                                    <a href="{{ route('admin.ekskul.edit', $ekskul->id) }}" class="btn btn-sm btn-warning">
+                                    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ $ekskul->id }}" title="Edit">
                                         <i class="bi bi-pencil"></i>
-                                    </a>
+                                    </button>
                                     <form action="{{ route('admin.ekskul.destroy', $ekskul->id) }}" method="POST" class="d-inline delete-form">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
                                     </form>
+                                </div>
+
+                                <!-- Edit Modal -->
+                                <div class="modal fade" id="editModal{{ $ekskul->id }}" tabindex="-1" aria-labelledby="editModalLabel{{ $ekskul->id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content" style="background: #1e2236; color: #e2e8f0; border: 1px solid #334155;">
+                                            <div class="modal-header" style="border-bottom: 1px solid #334155;">
+                                                <h5 class="modal-title" id="editModalLabel{{ $ekskul->id }}">Edit Ekskul</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form action="{{ route('admin.ekskul.update', $ekskul->id) }}" method="POST" enctype="multipart/form-data">
+                                                @csrf
+                                                @method('PUT')
+                                                <div class="modal-body text-start">
+                                                    <div class="mb-3">
+                                                        <label for="name{{ $ekskul->id }}" class="form-label" style="color: #94a3b8; font-size: 13px;">Nama Ekskul</label>
+                                                        <input type="text" class="form-control" style="background: #0f172a; border: 1px solid #334155; color: #e2e8f0;" id="name{{ $ekskul->id }}" name="name" value="{{ old('name', $ekskul->name) }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="urutan{{ $ekskul->id }}" class="form-label" style="color: #94a3b8; font-size: 13px;">Urutan</label>
+                                                        <input type="number" class="form-control" style="background: #0f172a; border: 1px solid #334155; color: #e2e8f0;" id="urutan{{ $ekskul->id }}" name="urutan" value="{{ old('urutan', $ekskul->urutan) }}">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="student_id{{ $ekskul->id }}" class="form-label" style="color: #94a3b8; font-size: 13px;">Admin Klub (Pilih Siswa)</label>
+                                                        <select class="form-select" style="background: #0f172a; border: 1px solid #334155; color: #e2e8f0;" id="student_id{{ $ekskul->id }}" name="student_id">
+                                                            <option value="">-- Tidak Ada Admin --</option>
+                                                            @foreach($students as $student)
+                                                                <option value="{{ $student->id }}" {{ old('student_id', $ekskul->student_id) == $student->id ? 'selected' : '' }}>
+                                                                    {{ $student->name }} (NISN: {{ $student->nisn }})
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                        <small style="color: #64748b; font-size: 11px;">Siswa ini akan menjadi Admin untuk mengelola fitur ekskul ini.</small>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="description{{ $ekskul->id }}" class="form-label" style="color: #94a3b8; font-size: 13px;">Deskripsi</label>
+                                                        <textarea class="form-control" style="background: #0f172a; border: 1px solid #334155; color: #e2e8f0;" id="description{{ $ekskul->id }}" name="description" rows="3">{{ old('description', $ekskul->description) }}</textarea>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="group_link{{ $ekskul->id }}" class="form-label" style="color: #94a3b8; font-size: 13px;">Link Grup (WhatsApp/Line)</label>
+                                                        <input type="url" class="form-control" style="background: #0f172a; border: 1px solid #334155; color: #e2e8f0;" id="group_link{{ $ekskul->id }}" name="group_link" value="{{ old('group_link', $ekskul->group_link) }}">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="logo{{ $ekskul->id }}" class="form-label" style="color: #94a3b8; font-size: 13px;">Logo Ekskul</label>
+                                                        @if($ekskul->logo_url)
+                                                            <div class="mb-2">
+                                                                <img src="{{ $ekskul->logo_url }}" alt="Logo" width="60" class="rounded" style="border: 2px solid rgba(100,108,255,0.3);">
+                                                            </div>
+                                                        @endif
+                                                        <input class="form-control" style="background: #0f172a; border: 1px solid #334155; color: #e2e8f0;" type="file" id="logo{{ $ekskul->id }}" name="logo" accept="image/*">
+                                                        <small style="color: #64748b; font-size: 11px;">Biarkan kosong jika tidak ingin mengubah logo.</small>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer" style="border-top: 1px solid #334155;">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                    <button type="submit" class="btn btn-primary">Update</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
                         </tr>

@@ -26,8 +26,9 @@ class AdminClubController extends Controller
             })
             ->paginate($perPage)
             ->withQueryString();
-            
-        return view('administrator.ekskul.index', compact('clubs'));
+        $students = Student::orderBy('name', 'asc')->get();
+
+        return view('administrator.ekskul.index', compact('clubs', 'students'));
     }
 
     public function create()
@@ -93,7 +94,7 @@ class AdminClubController extends Controller
 
         $ekskul->update($data);
 
-        return redirect()->route('admin.ekskul.index')->with('success', 'Ekskul updated successfully.');
+        return redirect()->back()->with('success', 'Ekskul updated successfully.');
     }
 
     public function reorder(Request $request)
@@ -118,6 +119,6 @@ class AdminClubController extends Controller
         }
         $ekskul->delete();
 
-        return redirect()->route('admin.ekskul.index')->with('success', 'Ekskul deleted successfully.');
+        return redirect()->back()->with('success', 'Ekskul deleted successfully.');
     }
 }
