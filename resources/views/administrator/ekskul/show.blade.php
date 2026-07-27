@@ -166,7 +166,7 @@
                                     @forelse($pendaftar as $index => $p)
                                         <tr>
                                             <td>
-                                                <input class="form-check-input check-pendaftar" type="checkbox" name="request_ids[]" value="{{ $p->id }}">
+                                                <input class="form-check-input check-pendaftar" type="checkbox" name="student_ids[]" value="{{ $p->id }}">
                                             </td>
                                             <td style="color: #64748b;">{{ $index + 1 }}</td>
                                             <td style="font-weight: 500; color: #e2e8f0;">{{ $p->name }}</td>

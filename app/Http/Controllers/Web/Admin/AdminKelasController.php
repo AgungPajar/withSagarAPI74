@@ -60,7 +60,7 @@ class AdminKelasController extends Controller
             'rombel' => $request->rombel,
         ]);
 
-        return redirect()->route('admin.kelas.index')->with('success', 'Kelas created successfully.');
+        return redirect()->back()->with('success', 'Kelas created successfully.');
     }
 
     public function show(Kelas $kela)

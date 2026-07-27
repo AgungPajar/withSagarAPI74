@@ -15,9 +15,9 @@
             @endif
         </p>
     </div>
-    <a href="{{ route('admin.kelas.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+    <button type="button" class="btn btn-primary btn-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createModal">
         <i class="bi bi-plus-lg"></i> Tambah Kelas
-    </a>
+    </button>
 </div>
 
 {{-- Search & Filter Bar --}}
@@ -177,6 +177,59 @@
 
 @include('administrator.components.table-footer', ['data' => $kelas, 'route' => 'admin.kelas.index'])
 
+{{-- Create Modal --}}
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ route('admin.kelas.store') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createModalLabel">
+                        <i class="bi bi-plus-circle me-2" style="color: #646cff;"></i>Tambah Kelas
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="create_tingkatan" class="form-label">Tingkatan</label>
+                        <select class="form-select" id="create_tingkatan" name="tingkatan" required>
+                            <option value="">Pilih Tingkatan...</option>
+                            <option value="X">X</option>
+                            <option value="XI">XI</option>
+                            <option value="XII">XII</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="create_rombel" class="form-label">Rombel <small style="color:#64748b;">(Contoh: 1, 2, A, B)</small></label>
+                        <input type="text" class="form-control" id="create_rombel" name="rombel" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="create_jurusan_id" class="form-label">Jurusan</label>
+                        <select class="form-select" id="create_jurusan_id" name="jurusan_id" required>
+                            <option value="">Pilih Jurusan...</option>
+                            @foreach($jurusans as $jurusan)
+                                <option value="{{ $jurusan->id }}" data-singkatan="{{ $jurusan->singkatan }}">
+                                    {{ $jurusan->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nama Kelas <small style="color:#64748b;">(Preview)</small></label>
+                        <input type="text" class="form-control" id="create_nama_preview" disabled style="background-color: #1e2236; color: #94a3b8;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i> Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {{-- Edit Modal --}}
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -300,6 +353,24 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('edit_tingkatan').addEventListener('change', updateNamaKelas);
     document.getElementById('edit_jurusan_id').addEventListener('change', updateNamaKelas);
     document.getElementById('edit_rombel').addEventListener('input', updateNamaKelas);
+
+    // ===== Auto-generate nama kelas (Create) =====
+    function updateCreateNamaKelas() {
+        const tingkatan     = document.getElementById('create_tingkatan').value;
+        const jurusanSelect = document.getElementById('create_jurusan_id');
+        const singkatan     = jurusanSelect.options[jurusanSelect.selectedIndex]?.getAttribute('data-singkatan') || '';
+        const rombel        = document.getElementById('create_rombel').value;
+
+        if (tingkatan && singkatan && rombel) {
+            document.getElementById('create_nama_preview').value = `${tingkatan} ${singkatan} ${rombel}`;
+        } else {
+            document.getElementById('create_nama_preview').value = '';
+        }
+    }
+
+    document.getElementById('create_tingkatan').addEventListener('change', updateCreateNamaKelas);
+    document.getElementById('create_jurusan_id').addEventListener('change', updateCreateNamaKelas);
+    document.getElementById('create_rombel').addEventListener('input', updateCreateNamaKelas);
 });
 </script>
 @endpush

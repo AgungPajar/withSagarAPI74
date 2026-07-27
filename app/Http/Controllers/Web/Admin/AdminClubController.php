@@ -161,15 +161,16 @@ class AdminClubController extends Controller
     public function bulkDeleteRequests(Request $request, Club $ekskul)
     {
         $request->validate([
-            'request_ids' => 'required|array',
-            'request_ids.*' => 'exists:club_student_requests,id'
+            'student_ids' => 'required|array',
+            'student_ids.*' => 'exists:students,id'
         ]);
 
         \Illuminate\Support\Facades\DB::table('club_student_requests')
             ->where('club_id', $ekskul->id)
-            ->whereIn('id', $request->request_ids)
+            ->whereIn('student_id', $request->student_ids)
+            ->where('status', 'pending')
             ->delete();
 
-        return redirect()->back()->with('success', count($request->request_ids) . ' pendaftar berhasil dihapus.');
+        return redirect()->back()->with('success', count($request->student_ids) . ' pendaftar berhasil dihapus.');
     }
 }
