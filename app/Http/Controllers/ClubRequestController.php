@@ -25,7 +25,9 @@ class ClubRequestController extends Controller
             ->join('students', 'club_student_requests.student_id', '=', 'students.id')
             ->where('club_student_requests.club_id', $clubId)
             ->where('club_student_requests.status', 'pending')
-            ->select('club_student_requests.id', 'students.name', 'students.nisn', 'students.class')
+            ->leftJoin('kelas', 'students.kelas_id', '=', 'kelas.id')
+            ->leftJoin('jurusans', 'kelas.jurusan_id', '=', 'jurusans.id')
+            ->select('club_student_requests.id', 'students.name', 'students.nisn', 'kelas.tingkatan as class', 'jurusans.singkatan as jurusan_singkatan', 'kelas.rombel as rombel')
             ->get();
 
         return response()->json($requests);
@@ -99,14 +101,15 @@ class ClubRequestController extends Controller
 
         $requests = DB::table('club_student_requests')
             ->join('students', 'club_student_requests.student_id', '=', 'students.id')
-            ->leftJoin('jurusans', 'students.id_jurusan', '=', 'jurusans.id')
+            ->leftJoin('kelas', 'students.kelas_id', '=', 'kelas.id')
+            ->leftJoin('jurusans', 'kelas.jurusan_id', '=', 'jurusans.id')
             ->where('club_student_requests.club_id', $clubId)
             ->where('club_student_requests.status', 'pending')
             ->select(
                 'club_student_requests.id',
                 'students.name',
-                'students.class',
-                'students.rombel',
+                'kelas.tingkatan as class',
+                'kelas.rombel as rombel',
                 'jurusans.singkatan as jurusan_singkatan',
                 'students.nisn',
             )
@@ -169,16 +172,16 @@ class ClubRequestController extends Controller
 
         $members = DB::table('club_student')
             ->join('students', 'club_student.student_id', '=', 'students.id')
-            ->leftJoin('jurusans', 'students.id_jurusan', '=', 'jurusans.id')
+            ->leftJoin('kelas', 'students.kelas_id', '=', 'kelas.id')
+            ->leftJoin('jurusans', 'kelas.jurusan_id', '=', 'jurusans.id')
             ->where('club_student.club_id', $clubId)
             ->select(
-                'club_student.id as club_student_id',
                 'students.id',
                 'students.nisn',
                 'students.name',
-                'students.class',
+                'kelas.tingkatan as class',
                 'students.phone',
-                'students.rombel',
+                'kelas.rombel as rombel',
                 'jurusans.singkatan as jurusan_singkatan'
             )
             ->get();
@@ -224,7 +227,7 @@ class ClubRequestController extends Controller
 
     public function getAvailableStudents($clubId)
     {
-        $students = Student::with('jurusan') // ini biar relasi jurusan ikut keambil
+        $students = Student::with('kelas.jurusan') // ini biar relasi jurusan ikut keambil
             ->whereNotIn('id', function ($query) use ($clubId) {
                 $query->select('student_id')
                     ->from('club_student')
