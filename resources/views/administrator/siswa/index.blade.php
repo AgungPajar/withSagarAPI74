@@ -117,7 +117,7 @@
                         @php $keyword = request('search'); @endphp
                         <tr>
                             <td style="color: #64748b;">{{ $students->firstItem() + $index }}</td>
-                            <td style="font-weight: 500; {{ $s->clubs->isEmpty() ? 'color: #facc15;' : (strlen($s->nisn) < 10 ? 'color: #ef4444;' : '') }}">
+                            <td style="font-weight: 500; {{ ($s->clubs->isEmpty() && $s->ledClubs->isEmpty()) ? 'color: #facc15;' : (strlen($s->nisn) < 10 ? 'color: #ef4444;' : '') }}">
                                 @if($keyword && stripos($s->name, $keyword) !== false)
                                     {!! preg_replace(
                                         '/(' . preg_quote($keyword, '/') . ')/i',
@@ -167,11 +167,17 @@
                                 @endif
                             </td>
                             <td>
-                                @if($s->clubs->isNotEmpty())
+                                @php
+                                    $allClubs = $s->clubs->merge($s->ledClubs)->unique('id');
+                                @endphp
+                                @if($allClubs->isNotEmpty())
                                     <div class="d-flex flex-wrap gap-1">
-                                        @foreach($s->clubs as $club)
+                                        @foreach($allClubs as $club)
                                             <span class="badge" style="background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.2); font-size: 11px;">
                                                 {{ $club->name }}
+                                                @if($s->ledClubs->contains('id', $club->id))
+                                                    <span style="color: #fbbf24; margin-left: 2px;">(Ketua)</span>
+                                                @endif
                                             </span>
                                         @endforeach
                                     </div>

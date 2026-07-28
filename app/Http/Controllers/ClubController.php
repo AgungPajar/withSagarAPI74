@@ -38,9 +38,11 @@ class ClubController extends Controller
     {
         $validated = $request->validate([
             'name'     => 'required|string|max:255|unique:clubs,name',
-            'username' => 'required|string|max:255|unique:users,username',
+            'username' => ['required', 'string', 'max:255', 'unique:users,username', 'regex:/^[a-z0-9\._-]+$/'],
             'password' => 'required|string|min:6',
             'status'   => 'nullable|string',
+        ], [
+            'username.regex' => 'Username tidak boleh menggunakan huruf besar dan spasi (contoh: agung-pajar).'
         ]);
         $user = User::create([
             'name' => $validated['name'],
@@ -95,12 +97,14 @@ class ClubController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'username' => 'sometimes|required|string|max:255|unique:users,username,' . $user->id,
+            'username' => ['sometimes', 'required', 'string', 'max:255', 'unique:users,username,' . $user->id, 'regex:/^[a-z0-9\._-]+$/'],
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
             'group_link' => 'nullable|url',
             'new_password' => 'nullable|string|min:6|confirmed',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ], [
+            'username.regex' => 'Username tidak boleh menggunakan huruf besar dan spasi (contoh: agung-pajar).'
         ]);
 
         $user->username = $request->username ?? $user->username;

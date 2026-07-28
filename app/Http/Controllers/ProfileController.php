@@ -15,12 +15,14 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'username' => ['required', 'string', 'max:255', 'unique:users,username,' . $user->id, 'regex:/^[a-z0-9\._-]+$/'],
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'group_link' => 'nullable|url',
             'password' => 'nullable|string|min:6',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ], [
+            'username.regex' => 'Username tidak boleh menggunakan huruf besar dan spasi (contoh: agung-pajar).'
         ]);
 
         $user->username = $request->username;

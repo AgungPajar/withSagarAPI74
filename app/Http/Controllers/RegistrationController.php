@@ -15,12 +15,14 @@ class RegistrationController extends Controller
             'nisn' => 'required|string|max:20|unique:students,nisn',
             'name' => 'required|string|max:255',
             'class' => 'required|string|max:50',
-            'username' => 'required|string|max:50|unique:users,username',
+            'username' => ['required', 'string', 'max:50', 'unique:users,username', 'regex:/^[a-z0-9\._-]+$/'],
             'phone' => 'required|string|max:15|unique:users,phone',
             'email' => 'required|string|email|max:255|unique:users,email',
             'club_id' => 'required|exists:clubs,id',
             'password' => 'required|string|min:6',
             'confirm_password' => 'required|string|min:6|same:password',
+        ], [
+            'username.regex' => 'Username tidak boleh menggunakan huruf besar dan spasi (contoh: agung-pajar).'
         ]);
 
         if ($validator->fails()) {
@@ -60,12 +62,14 @@ class RegistrationController extends Controller
             'grup_wa' => 'required|string|max:255',
             'nisn' => 'required|string|max:20|unique:students,nisn',
             'nama' => 'required|string|max:255',
-            'username' => 'required|string|max:50|unique:users,username',
+            'username' => ['required', 'string', 'max:50', 'unique:users,username', 'regex:/^[a-z0-9\._-]+$/'],
             'email' => 'required|string|email|max:255|unique:users,email',
             'tingkatan' => 'required|string|max:10',
             'jurusan' => 'required|string',
             'kelas' => 'required|string',
             'password' => 'required|string|min:6',
+        ], [
+            'username.regex' => 'Username tidak boleh menggunakan huruf besar dan spasi (contoh: agung-pajar).'
         ]);
 
         if ($validator->fails()) {

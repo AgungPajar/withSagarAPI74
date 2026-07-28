@@ -17,7 +17,7 @@ class AdminStudentController extends Controller
         $kelasFilter   = $request->kelas_id;
         $jurusanFilter = $request->jurusan_id;
 
-        $students = Student::with(['kelas.jurusan', 'user', 'clubs'])
+        $students = Student::with(['kelas.jurusan', 'user', 'clubs', 'ledClubs'])
             ->select('students.*')
             ->leftJoin('kelas', 'students.kelas_id', '=', 'kelas.id')
             ->leftJoin('jurusans', 'kelas.jurusan_id', '=', 'jurusans.id')
