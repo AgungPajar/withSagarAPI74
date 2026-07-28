@@ -32,28 +32,26 @@ class AuthController extends Controller
         $studentId = null;
         $studentHashId = null;
 
-        if ($user->role === 'student') {
+        if ($user->role === 'student' || $user->role === 'club_pengurus') {
             $student = Student::where('user_id', $user->id)->first();
 
             if ($student) {
                 $studentId = $student->id;
                 $studentHashId = $studentId;
 
-                $firstClub = $student->clubs()->first();
-                if ($firstClub) {
-                    $clubId = $firstClub->id;
-                    $clubHashId = $clubId;
-                }
-            }
-        } else if ($user->role === 'club_pengurus') {
-            $student = Student::where('user_id', $user->id)->first();
-            if ($student) {
+                // Cek apakah dia admin/pengurus di sebuah club
                 $club = Club::where('student_id', $student->id)->first();
                 if ($club) {
+                    $user->role = 'club_pengurus'; // Timpa role secara dinamis untuk response
                     $clubId = $club->id;
                     $clubHashId = $clubId;
-                    $studentId = $student->id;
-                    $studentHashId = $studentId;
+                } else {
+                    $user->role = 'student';
+                    $firstClub = $student->clubs()->first();
+                    if ($firstClub) {
+                        $clubId = $firstClub->id;
+                        $clubHashId = $clubId;
+                    }
                 }
             }
         }
