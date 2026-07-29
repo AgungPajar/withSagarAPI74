@@ -227,7 +227,7 @@
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="username{{ $s->id }}" class="form-label" style="color: #94a3b8; font-size: 13px;">Username</label>
-                                                        <input type="text" class="form-control" style="background: #0f172a; border: 1px solid #334155; color: #e2e8f0;" id="username{{ $s->id }}" name="username" value="{{ old('username', $s->user ? $s->user->username : '') }}" required>
+                                                        <input type="text" class="form-control" style="background: #0f172a; border: 1px solid #334155; color: #e2e8f0;" id="username{{ $s->id }}" name="username" value="{{ old('username', $s->user ? $s->user->username : '') }}" oninput="this.value = this.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\._-]/g, '')" required>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="kelas_id{{ $s->id }}" class="form-label" style="color: #94a3b8; font-size: 13px;">Kelas</label>
