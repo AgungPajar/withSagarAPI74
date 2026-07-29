@@ -104,21 +104,29 @@ class AdminStudentController extends Controller
             'name' => 'required|string|max:255',
             'nisn' => 'required|string|max:255|unique:students,nisn,' . $siswa->id,
             'kelas_id' => 'required|exists:kelas,id',
+            'username' => ['required', 'string', 'max:50', 'unique:users,username,' . ($siswa->user_id ?: 'NULL'), 'regex:/^[a-z0-9\._-]+$/'],
+        ], [
+            'username.regex' => 'Username tidak boleh menggunakan huruf besar dan spasi (contoh: agung-pajar).'
         ]);
 
         $data = $request->only('name', 'nisn', 'kelas_id');
 
         // Update or create user account linked to this student
-        $user = User::where('username', $request->nisn)->first();
+        $user = $siswa->user;
+        if (!$user) {
+            $user = User::where('username', $request->nisn)->first();
+        }
+        
         if (!$user) {
             $user = User::create([
-                'username' => $request->nisn,
+                'username' => $request->username,
                 'name' => $request->name,
                 'role' => 'student',
                 'password' => bcrypt('ossagar123'),
             ]);
         } else {
             $user->update([
+                'username' => $request->username,
                 'name' => $request->name,
                 'role' => 'student',
             ]);
